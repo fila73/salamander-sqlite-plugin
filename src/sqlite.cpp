@@ -226,56 +226,68 @@ BOOL WINAPI CPluginInterface::Release(HWND parent, BOOL force)
     return ret;
 }
 
+static const char* CONFIG_VERSION = "ConfigVersion";
+static const DWORD CURRENT_CONFIG_VERSION = 1;
+DWORD ConfigVersion = CURRENT_CONFIG_VERSION;
+
 void WINAPI CPluginInterface::LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry)
 {
-    if (!registry) return;
-
-    DWORD dwVal = 0;
-    if (registry->GetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &dwVal, sizeof(dwVal)))
-        CfgSavePosition = (dwVal != 0);
-
-    if (registry->GetValue(regKey, CONFIG_WNDPLACEMENT, REG_BINARY, &CfgWindowPlacement, sizeof(CfgWindowPlacement)))
+    if (registry != NULL && regKey != NULL)
     {
-        if (CfgWindowPlacement.length != sizeof(WINDOWPLACEMENT))
-            CfgSavePosition = FALSE;
+        if (!registry->GetValue(regKey, CONFIG_VERSION, REG_DWORD, &ConfigVersion, sizeof(DWORD)))
+            ConfigVersion = CURRENT_CONFIG_VERSION;
+
+        DWORD dwVal = 0;
+        if (registry->GetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &dwVal, sizeof(dwVal)))
+            CfgSavePosition = (dwVal != 0);
+
+        if (registry->GetValue(regKey, CONFIG_WNDPLACEMENT, REG_BINARY, &CfgWindowPlacement, sizeof(CfgWindowPlacement)))
+        {
+            if (CfgWindowPlacement.length != sizeof(WINDOWPLACEMENT))
+                CfgSavePosition = FALSE;
+        }
+
+        if (registry->GetValue(regKey, CONFIG_PAGESIZE, REG_DWORD, &dwVal, sizeof(dwVal)))
+            CfgDefaultPageSize = (int)dwVal;
+
+        if (registry->GetValue(regKey, CONFIG_ROWCAP, REG_DWORD, &dwVal, sizeof(dwVal)))
+            CfgQueryRowCap = (int)dwVal;
+
+        if (registry->GetValue(regKey, CONFIG_DEFAULTVIEW, REG_DWORD, &dwVal, sizeof(dwVal)))
+            CfgDefaultView = (int)dwVal;
+
+        if (registry->GetValue(regKey, CONFIG_DIRECTOPEN, REG_DWORD, &dwVal, sizeof(dwVal)))
+            CfgDirectOpen = (dwVal != 0);
     }
-
-    if (registry->GetValue(regKey, CONFIG_PAGESIZE, REG_DWORD, &dwVal, sizeof(dwVal)))
-        CfgDefaultPageSize = (int)dwVal;
-
-    if (registry->GetValue(regKey, CONFIG_ROWCAP, REG_DWORD, &dwVal, sizeof(dwVal)))
-        CfgQueryRowCap = (int)dwVal;
-
-    if (registry->GetValue(regKey, CONFIG_DEFAULTVIEW, REG_DWORD, &dwVal, sizeof(dwVal)))
-        CfgDefaultView = (int)dwVal;
-
-    if (registry->GetValue(regKey, CONFIG_DIRECTOPEN, REG_DWORD, &dwVal, sizeof(dwVal)))
-        CfgDirectOpen = (dwVal != 0);
 }
 
 void WINAPI CPluginInterface::SaveConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry)
 {
-    if (!registry) return;
-
-    DWORD dwVal = CfgSavePosition ? 1 : 0;
-    registry->SetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &dwVal, sizeof(dwVal));
-
-    if (CfgSavePosition && CfgWindowPlacement.length == sizeof(WINDOWPLACEMENT))
+    if (registry != NULL && regKey != NULL)
     {
-        registry->SetValue(regKey, CONFIG_WNDPLACEMENT, REG_BINARY, &CfgWindowPlacement, sizeof(CfgWindowPlacement));
+        DWORD v = CURRENT_CONFIG_VERSION;
+        registry->SetValue(regKey, CONFIG_VERSION, REG_DWORD, &v, sizeof(DWORD));
+
+        DWORD dwVal = CfgSavePosition ? 1 : 0;
+        registry->SetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &dwVal, sizeof(dwVal));
+
+        if (CfgSavePosition && CfgWindowPlacement.length == sizeof(WINDOWPLACEMENT))
+        {
+            registry->SetValue(regKey, CONFIG_WNDPLACEMENT, REG_BINARY, &CfgWindowPlacement, sizeof(CfgWindowPlacement));
+        }
+
+        dwVal = (DWORD)CfgDefaultPageSize;
+        registry->SetValue(regKey, CONFIG_PAGESIZE, REG_DWORD, &dwVal, sizeof(dwVal));
+
+        dwVal = (DWORD)CfgQueryRowCap;
+        registry->SetValue(regKey, CONFIG_ROWCAP, REG_DWORD, &dwVal, sizeof(dwVal));
+
+        dwVal = (DWORD)CfgDefaultView;
+        registry->SetValue(regKey, CONFIG_DEFAULTVIEW, REG_DWORD, &dwVal, sizeof(dwVal));
+
+        dwVal = CfgDirectOpen ? 1 : 0;
+        registry->SetValue(regKey, CONFIG_DIRECTOPEN, REG_DWORD, &dwVal, sizeof(dwVal));
     }
-
-    dwVal = (DWORD)CfgDefaultPageSize;
-    registry->SetValue(regKey, CONFIG_PAGESIZE, REG_DWORD, &dwVal, sizeof(dwVal));
-
-    dwVal = (DWORD)CfgQueryRowCap;
-    registry->SetValue(regKey, CONFIG_ROWCAP, REG_DWORD, &dwVal, sizeof(dwVal));
-
-    dwVal = (DWORD)CfgDefaultView;
-    registry->SetValue(regKey, CONFIG_DEFAULTVIEW, REG_DWORD, &dwVal, sizeof(dwVal));
-
-    dwVal = CfgDirectOpen ? 1 : 0;
-    registry->SetValue(regKey, CONFIG_DIRECTOPEN, REG_DWORD, &dwVal, sizeof(dwVal));
 }
 
 void WINAPI CPluginInterface::Configuration(HWND parent)
