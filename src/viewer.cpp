@@ -4,6 +4,7 @@
 
 #include "precomp.h"
 #include "viewer.h"
+#include "blob_dialog.h"
 #include <commctrl.h>
 
 #define IDC_COMBO_TABLES       103
@@ -30,6 +31,8 @@ static MENU_TEMPLATE_ITEM ViewerMenuTemplate[] =
 
     // Edit
     {MNTT_PB, IDS_MENU_EDIT, MNTS_B | MNTS_I | MNTS_A, CML_VIEWER_EDIT, -1, 0, NULL},
+    {MNTT_IT, IDS_MENU_EDIT_INSPECT, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_INSPECT_BLOB, -1, 0, NULL},
+    {MNTT_SP, -1, MNTS_B | MNTS_I | MNTS_A, 0, -1, 0, NULL},
     {MNTT_IT, IDS_MENU_EDIT_COPY, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_COPY, -1, 0, NULL},
     {MNTT_IT, IDS_MENU_EDIT_COPY_ALL, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_COPY_ALL, -1, 0, NULL},
     {MNTT_IT, IDS_MENU_EDIT_COPY_CSV, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_COPY_CSV, -1, 0, NULL},
@@ -69,6 +72,8 @@ static MENU_TEMPLATE_ITEM ViewerMenuTemplate[] =
 static MENU_TEMPLATE_ITEM ViewerPopupMenuTemplate[] =
 {
     {MNTT_PB, -1, MNTS_B | MNTS_I | MNTS_A, 0, -1, 0, NULL},
+    {MNTT_IT, IDS_MENU_EDIT_INSPECT, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_INSPECT_BLOB, -1, 0, NULL},
+    {MNTT_SP, -1, MNTS_B | MNTS_I | MNTS_A, 0, -1, 0, NULL},
     {MNTT_IT, IDS_MENU_EDIT_COPY, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_COPY, -1, 0, NULL},
     {MNTT_IT, IDS_MENU_EDIT_COPY_ALL, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_COPY_ALL, -1, 0, NULL},
     {MNTT_IT, IDS_MENU_EDIT_COPY_CSV, MNTS_B | MNTS_I | MNTS_A, CM_VIEWER_COPY_CSV, -1, 0, NULL},
@@ -941,28 +946,56 @@ void CViewerWindow::LayoutWindows()
     GetWindowRect(m_hStatusBar, &rcStatus);
     int statusHeight = rcStatus.bottom - rcStatus.top;
 
-    int topBarHeight = 32;
+    int dpi = 96;
+    HDC hdc = GetDC(HWindow);
+    if (hdc)
+    {
+        dpi = GetDeviceCaps(hdc, LOGPIXELSY);
+        ReleaseDC(HWindow, hdc);
+    }
+    if (dpi <= 0) dpi = 96;
+
+    auto ScaleDpi = [dpi](int v) -> int {
+        return MulDiv(v, dpi, 96);
+    };
+
+    // Calculate font metrics for controls
+    int ctrlH = ScaleDpi(26);
+    if (m_hComboTables)
+    {
+        RECT rcCombo = {0};
+        GetWindowRect(m_hComboTables, &rcCombo);
+        int cbH = rcCombo.bottom - rcCombo.top;
+        if (cbH > 15) ctrlH = cbH;
+    }
+
+    int marginX = ScaleDpi(6);
+    int marginY = ScaleDpi(5);
+    int topBarHeight = ctrlH + marginY * 2;
+    int ctrlY = marginY;
 
     // Controls in top bar
-    int x = 6;
-    int comboTablesW = 200;
-    int comboModeW = 120;
-    int comboPageSizeW = 75;
-    int editFilterW = 160;
+    int x = marginX;
+    int comboTablesW = ScaleDpi(200);
+    int comboModeW = ScaleDpi(120);
+    int comboPageSizeW = ScaleDpi(80);
+    int editFilterW = ScaleDpi(170);
+    int spacing = ScaleDpi(8);
 
-    SetWindowPos(m_hComboTables, NULL, x, 5, comboTablesW, 200, SWP_NOZORDER);
-    x += comboTablesW + 8;
+    SetWindowPos(m_hComboTables, NULL, x, ctrlY, comboTablesW, ScaleDpi(200), SWP_NOZORDER);
+    x += comboTablesW + spacing;
 
-    SetWindowPos(m_hComboMode, NULL, x, 5, comboModeW, 120, SWP_NOZORDER);
-    x += comboModeW + 8;
+    SetWindowPos(m_hComboMode, NULL, x, ctrlY, comboModeW, ScaleDpi(150), SWP_NOZORDER);
+    x += comboModeW + spacing;
 
-    SetWindowPos(m_hComboPageSize, NULL, x, 5, comboPageSizeW, 150, SWP_NOZORDER);
-    x += comboPageSizeW + 8;
+    SetWindowPos(m_hComboPageSize, NULL, x, ctrlY, comboPageSizeW, ScaleDpi(150), SWP_NOZORDER);
+    x += comboPageSizeW + spacing;
 
-    SetWindowPos(m_hEditFilter, NULL, x, 5, editFilterW, 22, SWP_NOZORDER);
+    SetWindowPos(m_hEditFilter, NULL, x, ctrlY, editFilterW, ctrlH, SWP_NOZORDER);
 
-    int clientY = topBarHeight + 6;
+    int clientY = topBarHeight + ScaleDpi(4);
     int clientH = height - clientY - statusHeight;
+    if (clientH < 10) clientH = 10;
 
     if (m_mode == ViewerMode::Data)
     {
@@ -976,13 +1009,41 @@ void CViewerWindow::LayoutWindows()
     }
     else if (m_mode == ViewerMode::Sql)
     {
-        int editH = 90;
-        int btnH = 24;
-        SetWindowPos(m_hEditSqlQuery, NULL, 4, clientY, width - 8, editH, SWP_NOZORDER);
-        SetWindowPos(m_hBtnExecuteSql, NULL, 4, clientY + editH + 4, 160, btnH, SWP_NOZORDER);
-        int listY = clientY + editH + btnH + 8;
+        int sqlEditH = ScaleDpi(90);
+        int sqlBtnH = ctrlH;
+        int sqlBtnW = ScaleDpi(160);
+        SetWindowPos(m_hEditSqlQuery, NULL, ScaleDpi(4), clientY, width - ScaleDpi(8), sqlEditH, SWP_NOZORDER);
+        SetWindowPos(m_hBtnExecuteSql, NULL, ScaleDpi(4), clientY + sqlEditH + ScaleDpi(4), sqlBtnW, sqlBtnH, SWP_NOZORDER);
+        int listY = clientY + sqlEditH + sqlBtnH + ScaleDpi(8);
         SetWindowPos(m_hListViewSql, NULL, 0, listY, width, height - listY - statusHeight, SWP_NOZORDER);
     }
+}
+
+void CViewerWindow::OnInspectCurrentCell()
+{
+    HWND hLv = (m_mode == ViewerMode::Sql) ? m_hListViewSql : m_hListViewData;
+    const auto& page = (m_mode == ViewerMode::Sql) ? m_sqlResultPage : m_currentPage;
+
+    int selRow = ListView_GetNextItem(hLv, -1, LVNI_SELECTED);
+    if (selRow < 0 || selRow >= (int)page.rows.size())
+        return;
+
+    // Get subitem under mouse cursor or focused column
+    POINT pt;
+    GetCursorPos(&pt);
+    ScreenToClient(hLv, &pt);
+    LVHITTESTINFO hti = {0};
+    hti.pt = pt;
+    ListView_SubItemHitTest(hLv, &hti);
+
+    int colIdx = (hti.iSubItem >= 0 && hti.iSubItem < (int)page.columnNames.size()) ? hti.iSubItem : 0;
+    if (colIdx >= (int)page.rows[selRow].size())
+        colIdx = 0;
+
+    const std::string& colName = page.columnNames[colIdx];
+    const SqliteEngine::CellValue& cell = page.rows[selRow][colIdx];
+
+    BlobDialog::ShowBlobInspector(HWindow, colName, cell);
 }
 
 void CViewerWindow::ShowContextMenu(const POINT& pt)
@@ -1084,6 +1145,10 @@ LRESULT CViewerWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             PostMessage(HWindow, WM_CLOSE, 0, 0);
             return 0;
 
+        case CM_VIEWER_INSPECT_BLOB:
+            OnInspectCurrentCell();
+            return 0;
+
         case CM_VIEWER_COPY:
             OnCopySelection();
             return 0;
@@ -1174,6 +1239,20 @@ LRESULT CViewerWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
                 OnColumnClick(pnmlv->iSubItem);
                 return TRUE;
             }
+            else if (pnm->code == NM_DBLCLK)
+            {
+                OnInspectCurrentCell();
+                return TRUE;
+            }
+            else if (pnm->code == LVN_KEYDOWN)
+            {
+                NMLVKEYDOWN* pnkd = (NMLVKEYDOWN*)lParam;
+                if (pnkd->wVKey == VK_RETURN)
+                {
+                    OnInspectCurrentCell();
+                    return TRUE;
+                }
+            }
             else if (pnm->code == NM_CUSTOMDRAW)
             {
                 return SqliteDarkMode::HandleListViewCustomDraw(m_hListViewData, (LPNMLVCUSTOMDRAW)lParam);
@@ -1185,6 +1264,20 @@ LRESULT CViewerWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
             {
                 OnSqlListGetDispInfo((NMLVDISPINFOA*)lParam);
                 return TRUE;
+            }
+            else if (pnm->code == NM_DBLCLK)
+            {
+                OnInspectCurrentCell();
+                return TRUE;
+            }
+            else if (pnm->code == LVN_KEYDOWN)
+            {
+                NMLVKEYDOWN* pnkd = (NMLVKEYDOWN*)lParam;
+                if (pnkd->wVKey == VK_RETURN)
+                {
+                    OnInspectCurrentCell();
+                    return TRUE;
+                }
             }
             else if (pnm->code == NM_CUSTOMDRAW)
             {

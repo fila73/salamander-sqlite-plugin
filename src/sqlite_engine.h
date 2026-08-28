@@ -58,6 +58,8 @@ struct CellValue
     bool isBlob = false;
     std::string text;
     size_t blobBytes = 0;
+    std::vector<uint8_t> blobData;
+    std::string blobKind;
     bool isNumeric = false;
 };
 
@@ -116,6 +118,9 @@ public:
     static std::string FormatRowsAsTsv(const QueryPage& page, bool includeHeaders = true);
     static bool IsSqliteDatabase(const char* filePath);
     static bool TestFileAccess(const char* filePath, std::string& outError);
+    static std::string FormatByteSize(size_t bytes);
+    static std::string DetectBlobKind(const uint8_t* data, size_t size);
+    static std::string FormatHexDump(const uint8_t* data, size_t size, size_t maxBytes = 65536);
 
 private:
     sqlite3* m_db;

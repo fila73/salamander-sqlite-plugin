@@ -129,6 +129,7 @@ private:
     void OnColumnClick(int colIndex);
 
     void ShowContextMenu(const POINT& pt);
+    void OnInspectCurrentCell();
 };
 
 extern CWindowQueue ViewerWindowQueue;

@@ -21,11 +21,12 @@ CFLAGS = -O2 -Wall -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-functio
     -Isrc/sqlite
 
 LDFLAGS = -shared -s -static -static-libgcc -static-libstdc++ \
-    -lshlwapi -lcomctl32 -lcomdlg32 -lole32 -lshell32 -lgdi32 -lmsimg32 -luxtheme -ldwmapi
+    -lshlwapi -lcomctl32 -lcomdlg32 -lole32 -lshell32 -lgdi32 -lmsimg32 -luxtheme -ldwmapi -lgdiplus
 
 CPP_SRCS = \
     src/sqlite_engine.cpp \
     src/sqlitedarkmode.cpp \
+    src/blob_dialog.cpp \
     src/viewer.cpp \
     src/dialogs.cpp \
     src/menu.cpp \

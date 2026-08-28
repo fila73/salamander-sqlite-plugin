@@ -90,6 +90,7 @@ BEGIN
     IDS_MENU_EDIT_COPY_ALL  "Kopírovat &všechny řádky\tCtrl+A"
     IDS_MENU_EDIT_COPY_CSV  "Kopírovat jako &CSV"
     IDS_MENU_EDIT_EXPORT    "&Exportovat tabulku do CSV...\tCtrl+E"
+    IDS_MENU_EDIT_INSPECT   "Zobrazit buňku / &BLOB...\tEnter"
 
     IDS_MENU_VIEW           "&Zobrazit"
     IDS_MENU_REFRESH        "&Obnovit\tF5"

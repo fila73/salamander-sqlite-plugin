@@ -495,7 +495,21 @@ QueryPage CSqliteEngine::LoadTablePage(const std::string& tableName,
             {
                 cell.isBlob = true;
                 cell.blobBytes = sqlite3_column_bytes(stmt, i);
-                cell.text = "<BLOB " + std::to_string(cell.blobBytes) + " B>";
+                const uint8_t* blobPtr = (const uint8_t*)sqlite3_column_blob(stmt, i);
+
+                std::string kind = DetectBlobKind(blobPtr, cell.blobBytes);
+                cell.blobKind = kind;
+
+                if (!kind.empty() && kind != "Binary")
+                    cell.text = "<BLOB: " + kind + " (" + FormatByteSize(cell.blobBytes) + ")>";
+                else
+                    cell.text = "<BLOB " + FormatByteSize(cell.blobBytes) + ">";
+
+                if (blobPtr && cell.blobBytes > 0)
+                {
+                    size_t copyLen = (cell.blobBytes < (8 * 1024 * 1024)) ? cell.blobBytes : (8 * 1024 * 1024);
+                    cell.blobData.assign(blobPtr, blobPtr + copyLen);
+                }
             }
             else
             {
@@ -541,12 +555,16 @@ QueryPage CSqliteEngine::ExecuteQuery(const std::string& sql, int rowCap)
     }
 
     int colCount = sqlite3_column_count(stmt);
+    page.columnNames.reserve(colCount);
+    page.columnTypes.reserve(colCount);
+
     for (int i = 0; i < colCount; ++i)
     {
-        const char* cn = sqlite3_column_name(stmt, i);
-        const char* ct = sqlite3_column_decltype(stmt, i);
-        page.columnNames.push_back(cn ? cn : ("col_" + std::to_string(i)));
-        page.columnTypes.push_back(ct ? ct : "");
+        const char* name = sqlite3_column_name(stmt, i);
+        page.columnNames.push_back(name ? name : "");
+
+        const char* declType = sqlite3_column_decltype(stmt, i);
+        page.columnTypes.push_back(declType ? declType : "");
     }
 
     int rowsFetched = 0;
@@ -587,7 +605,21 @@ QueryPage CSqliteEngine::ExecuteQuery(const std::string& sql, int rowCap)
             {
                 cell.isBlob = true;
                 cell.blobBytes = sqlite3_column_bytes(stmt, i);
-                cell.text = "<BLOB " + std::to_string(cell.blobBytes) + " B>";
+                const uint8_t* blobPtr = (const uint8_t*)sqlite3_column_blob(stmt, i);
+
+                std::string kind = DetectBlobKind(blobPtr, cell.blobBytes);
+                cell.blobKind = kind;
+
+                if (!kind.empty() && kind != "Binary")
+                    cell.text = "<BLOB: " + kind + " (" + FormatByteSize(cell.blobBytes) + ")>";
+                else
+                    cell.text = "<BLOB " + FormatByteSize(cell.blobBytes) + ">";
+
+                if (blobPtr && cell.blobBytes > 0)
+                {
+                    size_t copyLen = (cell.blobBytes < (8 * 1024 * 1024)) ? cell.blobBytes : (8 * 1024 * 1024);
+                    cell.blobData.assign(blobPtr, blobPtr + copyLen);
+                }
             }
             else
             {
@@ -767,6 +799,122 @@ bool CSqliteEngine::ExportTableToCsv(const std::string& tableName, const char* o
     sqlite3_finalize(stmt);
     ofs.close();
     return true;
+}
+
+std::string CSqliteEngine::FormatByteSize(size_t bytes)
+{
+    if (bytes < 1024)
+    {
+        return std::to_string(bytes) + " B";
+    }
+    else if (bytes < 1024 * 1024)
+    {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%.1f KB", bytes / 1024.0);
+        return buf;
+    }
+    else if (bytes < 1024 * 1024 * 1024)
+    {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%.2f MB", bytes / (1024.0 * 1024.0));
+        return buf;
+    }
+    else
+    {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%.2f GB", bytes / (1024.0 * 1024.0 * 1024.0));
+        return buf;
+    }
+}
+
+std::string CSqliteEngine::DetectBlobKind(const uint8_t* data, size_t size)
+{
+    if (!data || size == 0) return "";
+
+    if (size >= 8 && memcmp(data, "\x89PNG\r\n\x1a\n", 8) == 0)
+        return "PNG";
+    if (size >= 3 && data[0] == 0xFF && data[1] == 0xD8 && data[2] == 0xFF)
+        return "JPEG";
+    if (size >= 6 && (memcmp(data, "GIF87a", 6) == 0 || memcmp(data, "GIF89a", 6) == 0))
+        return "GIF";
+    if (size >= 2 && memcmp(data, "BM", 2) == 0)
+        return "BMP";
+    if (size >= 12 && memcmp(data, "RIFF", 4) == 0 && memcmp(data + 8, "WEBP", 4) == 0)
+        return "WebP";
+    if (size >= 4 && memcmp(data, "%PDF", 4) == 0)
+        return "PDF";
+    if (size >= 4 && memcmp(data, "PK\x03\x04", 4) == 0)
+        return "ZIP";
+    if (size >= 16 && memcmp(data, "SQLite format 3\000", 16) == 0)
+        return "SQLite DB";
+
+    // Check if it's UTF-8 / printable text or JSON
+    size_t checkLen = (size < 512) ? size : 512;
+    size_t printable = 0;
+    for (size_t i = 0; i < checkLen; ++i)
+    {
+        uint8_t c = data[i];
+        if (c == '\r' || c == '\n' || c == '\t' || (c >= 32 && c <= 126) || c >= 128)
+            printable++;
+    }
+    if (printable >= (checkLen * 95 / 100))
+    {
+        for (size_t i = 0; i < checkLen; ++i)
+        {
+            if (data[i] == '{' || data[i] == '[')
+                return "JSON";
+            if (!isspace(data[i]))
+                break;
+        }
+        return "Text";
+    }
+
+    return "Binary";
+}
+
+std::string CSqliteEngine::FormatHexDump(const uint8_t* data, size_t size, size_t maxBytes)
+{
+    if (!data || size == 0) return "";
+
+    size_t dumpLen = (size < maxBytes) ? size : maxBytes;
+    std::string out;
+    out.reserve(dumpLen * 5);
+
+    char line[128];
+    for (size_t offset = 0; offset < dumpLen; offset += 16)
+    {
+        size_t chunk = (dumpLen - offset < 16) ? (dumpLen - offset) : 16;
+        int pos = snprintf(line, sizeof(line), "%08zX  ", offset);
+
+        for (size_t i = 0; i < 16; ++i)
+        {
+            if (i == 8) { line[pos++] = ' '; }
+            if (i < chunk)
+                pos += snprintf(line + pos, sizeof(line) - pos, "%02X ", data[offset + i]);
+            else
+                pos += snprintf(line + pos, sizeof(line) - pos, "   ");
+        }
+
+        pos += snprintf(line + pos, sizeof(line) - pos, " |");
+
+        for (size_t i = 0; i < chunk; ++i)
+        {
+            uint8_t c = data[offset + i];
+            line[pos++] = (c >= 32 && c <= 126) ? (char)c : '.';
+        }
+
+        pos += snprintf(line + pos, sizeof(line) - pos, "|\r\n");
+        out.append(line, pos);
+    }
+
+    if (size > maxBytes)
+    {
+        char truncMsg[128];
+        snprintf(truncMsg, sizeof(truncMsg), "\r\n... [Truncated: showing %zu of %zu bytes] ...\r\n", maxBytes, size);
+        out += truncMsg;
+    }
+
+    return out;
 }
 
 } // namespace SqliteEngine

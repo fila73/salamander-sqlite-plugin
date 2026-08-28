@@ -90,6 +90,7 @@ BEGIN
     IDS_MENU_EDIT_COPY_ALL  "Copy &All Rows\tCtrl+A"
     IDS_MENU_EDIT_COPY_CSV  "Copy as &CSV"
     IDS_MENU_EDIT_EXPORT    "&Export Table to CSV...\tCtrl+E"
+    IDS_MENU_EDIT_INSPECT   "View Cell / &BLOB Details...\tEnter"
 
     IDS_MENU_VIEW           "&View"
     IDS_MENU_REFRESH        "&Refresh\tF5"
