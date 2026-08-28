@@ -3,7 +3,8 @@
 A high-performance SQLite database viewer plugin for **Altap Salamander / Open Salamander**.
 
 ## Authors & Credits
-- **Authors**: Open Salamander Authors & Red Salamander Authors
+- **Authors**: Open Salamander Authors, Red Salamander Authors, Ondřej Kotas ([KRtkovo-eu-AI/salamander](https://github.com/KRtkovo-eu-AI/salamander))
+- **Dark Mode implementation**: Based on the Dark Mode host policy from [KRtkovo-eu-AI/salamander](https://github.com/KRtkovo-eu-AI/salamander) fork by Ondřej Kotas
 - **Ported to Open Salamander framework by**: fila73
 
 ## Features
@@ -30,7 +31,7 @@ A high-performance SQLite database viewer plugin for **Altap Salamander / Open S
   - Copy cell, row, or all rows to clipboard (formatted as Text, CSV, or TSV).
   - Export entire table to standard CSV file (with UTF-8 BOM).
 - **Dark Mode Support**:
-  - Seamlessly integrates with Open Salamander's Dark Mode (`PluginDarkMode` / WinLib).
+  - Compatible with Dark Mode in the [KRtkovo-eu-AI/salamander](https://github.com/KRtkovo-eu-AI/salamander) fork (`PluginDarkMode` / WinLib theme engine).
 - **Localization**:
   - English (`english.slg`) and Czech (`czech.slg`).
 

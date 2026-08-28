@@ -1,4 +1,5 @@
-// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors, Red Salamander Authors & Ondrej Kotas
+// SPDX-FileContributor: Dark Mode host policy and theme integration based on fork by Ondrej Kotas (KRtkovo-eu-AI)
 // SPDX-FileContributor: Ported to Open Salamander framework by fila73
 // SPDX-License-Identifier: GPL-2.0-or-later
 

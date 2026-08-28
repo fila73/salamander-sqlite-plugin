@@ -3,8 +3,9 @@
 Výkonný prohlížeč SQLite databází pro souborového správce **Altap Salamander / Open Salamander**.
 
 ## Autoři a poděkování
-- **Autoři**: Open Salamander Authors & Red Salamander Authors
-- **Port do frameworku Open Salamander**: fila73
+- **Autoři**: Open Salamander Authors, Red Salamander Authors, Ondřej Kotas ([KRtkovo-eu-AI/salamander](https://github.com/KRtkovo-eu-AI/salamander))
+- **Implementace Dark Mode**: Využívá podporu a host policy tmavého režimu z forku [KRtkovo-eu-AI/salamander](https://github.com/KRtkovo-eu-AI/salamander) od Ondřeje Kotase
+- **Port do frameworku Salamander**: fila73
 
 ## Funkce a vlastnosti
 
@@ -30,7 +31,7 @@ Výkonný prohlížeč SQLite databází pro souborového správce **Altap Salam
   - Kopírování buňky, řádku nebo všech řádků do schránky (jako text, CSV nebo TSV).
   - Export celé tabulky do standardního CSV souboru (s UTF-8 BOM).
 - **Podpora tmavého režimu (Dark Mode)**:
-  - Plná integrace s Dark Mode v Open Salamanderu (`PluginDarkMode` / WinLib).
+  - Plná integrace s tmavým režimem ve forku [KRtkovo-eu-AI/salamander](https://github.com/KRtkovo-eu-AI/salamander) (`PluginDarkMode` / WinLib tématické jádro).
 - **Lokalizace**:
   - Angličtina (`english.slg`) a čeština (`czech.slg`).
 

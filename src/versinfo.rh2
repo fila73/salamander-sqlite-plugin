@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors, Red Salamander Authors & Ondrej Kotas
 // SPDX-FileContributor: Ported to Open Salamander framework by fila73
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -15,10 +15,10 @@
 
 #include "spl_vers.h"
 
-#define VERSINFO_COPYRIGHT   "Copyright \xA9 2026 Open Salamander Authors & Red Salamander Authors. Ported to Open Salamander by fila73."
+#define VERSINFO_COPYRIGHT   "Copyright \xA9 2026 Open Salamander Authors, Red Salamander Authors & Ondrej Kotas. Ported by fila73."
 #define VERSINFO_COMPANY     "Open Salamander & Red Salamander"
 
-#define VERSINFO_DESCRIPTION "SQLite Database Viewer plugin for Open Salamander (ported by fila73)"
+#define VERSINFO_DESCRIPTION "SQLite Database Viewer plugin for Open Salamander (Dark Mode by Ondrej Kotas, ported by fila73)"
 
 #ifdef _LANG
 #define VERSINFO_INTERNAL    "ENGLISH"
