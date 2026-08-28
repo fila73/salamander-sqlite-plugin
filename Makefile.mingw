@@ -20,7 +20,7 @@ CFLAGS = -O2 -Wall -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-functio
     -DSQLITE_OMIT_LOAD_EXTENSION \
     -Isrc/sqlite
 
-LDFLAGS = -shared -s -static-libgcc -static-libstdc++ \
+LDFLAGS = -shared -s -static -static-libgcc -static-libstdc++ \
     -lshlwapi -lcomctl32 -lcomdlg32 -lole32 -lshell32 -lgdi32 -lmsimg32 -luxtheme -ldwmapi
 
 CPP_SRCS = \
