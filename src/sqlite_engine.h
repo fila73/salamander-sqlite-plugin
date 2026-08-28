@@ -115,6 +115,7 @@ public:
     static std::string FormatRowsAsCsv(const QueryPage& page, bool includeHeaders = true);
     static std::string FormatRowsAsTsv(const QueryPage& page, bool includeHeaders = true);
     static bool IsSqliteDatabase(const char* filePath);
+    static bool TestFileAccess(const char* filePath, std::string& outError);
 
 private:
     sqlite3* m_db;

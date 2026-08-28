@@ -152,6 +152,8 @@ BEGIN
     IDS_SCHEMA_COLS_TITLE   "Sloupce:"
     IDS_SCHEMA_IDXS_TITLE   "Indexy:"
     IDS_SCHEMA_FKS_TITLE    "Cizí klíče:"
+    IDS_FILE_OPEN_ERROR     "Nepodařilo se otevřít soubor databáze."
+    IDS_FILE_LOCKED         "Soubor je uzamčen nebo jej využívá jiný proces."
 END
 
 #endif // Czech resources

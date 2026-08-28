@@ -170,29 +170,36 @@ unsigned CViewerThread::Body()
 
     if (openFile)
     {
-        window->OpenFile(m_name, FALSE);
-
-        ShowWindow(window->HWindow, m_showCmd ? m_showCmd : SW_SHOWNORMAL);
-        SetForegroundWindow(window->HWindow);
-        UpdateWindow(window->HWindow);
-
-        MSG msg;
-        while (GetMessage(&msg, NULL, 0, 0))
+        if (!window->OpenFile(m_name, FALSE))
         {
-            if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
+            // Opening failed, error message already shown to user.
+            // Destroy window and do not enter message loop to avoid empty viewer.
+            DestroyWindow(window->HWindow);
+        }
+        else
+        {
+            ShowWindow(window->HWindow, m_showCmd ? m_showCmd : SW_SHOWNORMAL);
+            SetForegroundWindow(window->HWindow);
+            UpdateWindow(window->HWindow);
+
+            MSG msg;
+            while (GetMessage(&msg, NULL, 0, 0))
             {
-                PostMessage(window->HWindow, WM_CLOSE, 0, 0);
-                continue;
+                if (msg.message == WM_KEYDOWN && msg.wParam == VK_ESCAPE)
+                {
+                    PostMessage(window->HWindow, WM_CLOSE, 0, 0);
+                    continue;
+                }
+
+                if (window->IsMenuBarMessage(&msg))
+                    continue;
+
+                if (ViewerAccels && TranslateAccelerator(window->HWindow, ViewerAccels, &msg))
+                    continue;
+
+                TranslateMessage(&msg);
+                DispatchMessage(&msg);
             }
-
-            if (window->IsMenuBarMessage(&msg))
-                continue;
-
-            if (ViewerAccels && TranslateAccelerator(window->HWindow, ViewerAccels, &msg))
-                continue;
-
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
         }
     }
 
@@ -260,7 +267,7 @@ BOOL CViewerWindow::IsMenuBarMessage(CONST MSG* lpMsg)
     return FALSE;
 }
 
-void CViewerWindow::OpenFile(const char* name, BOOL setLock)
+bool CViewerWindow::OpenFile(const char* name, BOOL setLock)
 {
     if (setLock && m_hLock != NULL)
     {
@@ -273,14 +280,13 @@ void CViewerWindow::OpenFile(const char* name, BOOL setLock)
     std::string err;
     if (!m_engine.Open(m_fileName, err, CfgDirectOpen != FALSE))
     {
-        char title[512];
-        snprintf(title, sizeof(title), "%s - %s", LoadStr(IDS_PLUGINNAME), m_fileName);
-        SetWindowTextA(HWindow, title);
-
         char msg[1024];
-        snprintf(msg, sizeof(msg), "%s\n\n%s", LoadStr(IDS_NOT_A_SQLITE_DB), err.c_str());
+        snprintf(msg, sizeof(msg), "%s\n\n%s:\n%s",
+                 LoadStr(IDS_FILE_OPEN_ERROR),
+                 m_fileName,
+                 err.c_str());
         SalamanderGeneral->SalMessageBox(HWindow, msg, LoadStr(IDS_PLUGINNAME), MB_ICONERROR | MB_OK);
-        return;
+        return false;
     }
 
     char title[512];
@@ -295,11 +301,11 @@ void CViewerWindow::OpenFile(const char* name, BOOL setLock)
     if (!m_engine.GetTables().empty())
     {
         m_currentTable = m_engine.GetTables()[0].name;
-        SendMessage(m_hComboTables, CB_SETCURSEL, 0, 0);
+        SendMessageA(m_hComboTables, CB_SETCURSEL, 0, 0);
     }
     else
     {
-        m_currentTable = "";
+        m_currentTable.clear();
     }
 
     m_rowOffset = 0;
@@ -316,6 +322,7 @@ void CViewerWindow::OpenFile(const char* name, BOOL setLock)
 
     SwitchMode(m_mode);
     UpdateStatusBar();
+    return true;
 }
 
 bool CViewerWindow::CreateViewerControls()

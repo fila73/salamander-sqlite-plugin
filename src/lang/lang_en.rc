@@ -152,6 +152,8 @@ BEGIN
     IDS_SCHEMA_COLS_TITLE   "Columns:"
     IDS_SCHEMA_IDXS_TITLE   "Indexes:"
     IDS_SCHEMA_FKS_TITLE    "Foreign Keys:"
+    IDS_FILE_OPEN_ERROR     "Failed to open database file."
+    IDS_FILE_LOCKED         "The file is locked or used by another process."
 END
 
 #endif // English (U.S.) resources

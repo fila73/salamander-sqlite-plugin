@@ -47,7 +47,7 @@ public:
     CViewerWindow(int enumFilesSourceUID, int enumFilesCurrentIndex);
     ~CViewerWindow();
 
-    void OpenFile(const char* name, BOOL setLock = TRUE);
+    bool OpenFile(const char* name, BOOL setLock = TRUE);
     HANDLE GetLock();
 
     BOOL IsMenuBarMessage(CONST MSG* lpMsg);

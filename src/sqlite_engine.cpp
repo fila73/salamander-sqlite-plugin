@@ -26,15 +26,39 @@ CSqliteEngine::~CSqliteEngine()
     Close();
 }
 
-bool CSqliteEngine::IsSqliteDatabase(const char* filePath)
+bool CSqliteEngine::TestFileAccess(const char* filePath, std::string& outError)
 {
     if (!filePath || !*filePath)
+    {
+        outError = "File path is empty.";
         return false;
+    }
 
     HANDLE hFile = CreateFileA(filePath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                                NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if (hFile == INVALID_HANDLE_VALUE)
+    {
+        DWORD dwErr = GetLastError();
+        char sysMsg[512] = {0};
+        FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+                       NULL, dwErr, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                       sysMsg, sizeof(sysMsg), NULL);
+
+        size_t len = strlen(sysMsg);
+        while (len > 0 && (sysMsg[len - 1] == '\r' || sysMsg[len - 1] == '\n' || sysMsg[len - 1] == ' '))
+        {
+            sysMsg[--len] = '\0';
+        }
+
+        char buf[512];
+        if (sysMsg[0] != '\0')
+            snprintf(buf, sizeof(buf), "(%lu) %s", dwErr, sysMsg);
+        else
+            snprintf(buf, sizeof(buf), "Error %lu: Access denied or file is locked.", dwErr);
+
+        outError = buf;
         return false;
+    }
 
     char header[16] = {0};
     DWORD bytesRead = 0;
@@ -42,9 +66,24 @@ bool CSqliteEngine::IsSqliteDatabase(const char* filePath)
     CloseHandle(hFile);
 
     if (!ok || bytesRead < 16)
+    {
+        outError = "File is too small or cannot read header.";
         return false;
+    }
 
-    return (memcmp(header, SQLITE_SIGNATURE, 16) == 0);
+    if (memcmp(header, SQLITE_SIGNATURE, 16) != 0)
+    {
+        outError = "File does not contain a valid SQLite 3 signature header.";
+        return false;
+    }
+
+    return true;
+}
+
+bool CSqliteEngine::IsSqliteDatabase(const char* filePath)
+{
+    std::string err;
+    return TestFileAccess(filePath, err);
 }
 
 void CSqliteEngine::CleanTempSnapshot()
@@ -60,9 +99,8 @@ bool CSqliteEngine::Open(const char* filePath, std::string& outError, bool direc
 {
     Close();
 
-    if (!filePath || !*filePath)
+    if (!TestFileAccess(filePath, outError))
     {
-        outError = "File path is empty.";
         return false;
     }
 
