@@ -227,15 +227,15 @@ BOOL WINAPI CPluginInterface::Release(HWND parent, BOOL force)
 }
 
 static const char* CONFIG_VERSION = "ConfigVersion";
-static const DWORD CURRENT_CONFIG_VERSION = 1;
-DWORD ConfigVersion = CURRENT_CONFIG_VERSION;
+static const DWORD CURRENT_CONFIG_VERSION = 2;
+DWORD ConfigVersion = 0;
 
 void WINAPI CPluginInterface::LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry)
 {
     if (registry != NULL && regKey != NULL)
     {
         if (!registry->GetValue(regKey, CONFIG_VERSION, REG_DWORD, &ConfigVersion, sizeof(DWORD)))
-            ConfigVersion = CURRENT_CONFIG_VERSION;
+            ConfigVersion = 1;
 
         DWORD dwVal = 0;
         if (registry->GetValue(regKey, CONFIG_SAVEPOS, REG_DWORD, &dwVal, sizeof(dwVal)))
@@ -297,6 +297,32 @@ void WINAPI CPluginInterface::Configuration(HWND parent)
 
 void WINAPI CPluginInterface::Connect(HWND parent, CSalamanderConnectAbstract* salamander)
 {
+    // Basic part: register SQLite file masks for internal viewer (F3 / Quick View)
+    salamander->AddViewer("*.db;*.sqlite;*.sqlite3;*.db3;*.s3db;*.sl3;*.sqlite2", FALSE);
+
+    // Upgrade part: if upgrading from earlier version, force add viewer mask
+    if (ConfigVersion < 2)
+    {
+        salamander->AddViewer("*.db;*.sqlite;*.sqlite3;*.db3;*.s3db;*.sl3;*.sqlite2", TRUE);
+    }
+
+    if (SalamanderGUI != NULL)
+    {
+        CGUIIconListAbstract* iconList = SalamanderGUI->CreateIconList();
+        if (iconList != NULL)
+        {
+            iconList->Create(16, 16, 1);
+            HICON hIcon = (HICON)LoadImage(DLLInstance, MAKEINTRESOURCE(IDI_SQLITE), IMAGE_ICON, 16, 16, SalamanderGeneral->GetIconLRFlags());
+            if (hIcon != NULL)
+            {
+                iconList->ReplaceIcon(0, hIcon);
+                DestroyIcon(hIcon);
+            }
+            salamander->SetIconListForGUI(iconList);
+            salamander->SetPluginIcon(0);
+            salamander->SetPluginMenuAndToolbarIcon(0);
+        }
+    }
 }
 
 CPluginInterfaceForViewerAbstract* WINAPI CPluginInterface::GetInterfaceForViewer()
