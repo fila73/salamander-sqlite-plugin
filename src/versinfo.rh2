@@ -1,0 +1,34 @@
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileContributor: Ported to Open Salamander framework by fila73
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#ifndef __SQLITE_VERSINFO_RH2
+#define __SQLITE_VERSINFO_RH2
+
+#if defined(APSTUDIO_INVOKED) && !defined(APSTUDIO_READONLY_SYMBOLS)
+#error this file is not editable by Microsoft Visual C++
+#endif
+
+#define VERSINFO_MAJOR       1
+#define VERSINFO_MINORA      0
+#define VERSINFO_MINORB      0
+
+#include "spl_vers.h"
+
+#define VERSINFO_COPYRIGHT   "Copyright \xA9 2026 Open Salamander Authors & Red Salamander Authors. Ported to Open Salamander by fila73."
+#define VERSINFO_COMPANY     "Open Salamander & Red Salamander"
+
+#define VERSINFO_DESCRIPTION "SQLite Database Viewer plugin for Open Salamander (ported by fila73)"
+
+#ifdef _LANG
+#define VERSINFO_INTERNAL    "ENGLISH"
+#define VERSINFO_ORIGINAL    VERSINFO_INTERNAL ".SLG"
+#else
+#define VERSINFO_INTERNAL    "SQLITE"
+#define VERSINFO_ORIGINAL    VERSINFO_INTERNAL ".SPL"
+#endif
+
+#define VERSINFO_SLG_WEB     "https://github.com/manison/OpenSalamander"
+#define VERSINFO_SLG_COMMENT "SQLite Viewer language module"
+
+#endif // __SQLITE_VERSINFO_RH2

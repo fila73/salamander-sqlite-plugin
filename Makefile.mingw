@@ -1,0 +1,75 @@
+CROSS_COMPILE ?= 
+CXX = $(CROSS_COMPILE)g++
+CC = $(CROSS_COMPILE)gcc
+AR = $(CROSS_COMPILE)ar
+RC = $(CROSS_COMPILE)windres
+DLLTOOL = $(CROSS_COMPILE)dlltool
+
+SALAMAND_DIR = ../salamander-plugins/salamand
+SHARED_DIR = ../salamander-plugins/salamand/plugins/shared
+
+CXXFLAGS = -O2 -Wall -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-function -Wno-parentheses -std=c++17 \
+    -DWIN32 -D_WIN32 -D_WINDOWS -D_USRDLL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 \
+    -D_CRT_SECURE_NO_WARNINGS -DUNICODE_NOT_USED -D_FILE_OFFSET_BITS=64 \
+    -Isrc -Isrc/lang -Isrc/sqlite -I$(SHARED_DIR) -I$(SALAMAND_DIR)
+
+CFLAGS = -O2 -Wall -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-function -Wno-parentheses \
+    -DWIN32 -D_WIN32 -D_WINDOWS -D_USRDLL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 \
+    -D_CRT_SECURE_NO_WARNINGS -DSQLITE_THREADSAFE=1 -DSQLITE_ENABLE_FTS5 \
+    -DSQLITE_ENABLE_RTREE -DSQLITE_ENABLE_JSON1 -DSQLITE_ENABLE_COLUMN_METADATA \
+    -DSQLITE_OMIT_LOAD_EXTENSION \
+    -Isrc/sqlite
+
+LDFLAGS = -shared -s -static-libgcc -static-libstdc++ \
+    -lshlwapi -lcomctl32 -lcomdlg32 -lole32 -lshell32 -lgdi32 -lmsimg32 -luxtheme -ldwmapi
+
+CPP_SRCS = \
+    src/sqlite_engine.cpp \
+    src/sqlitedarkmode.cpp \
+    src/viewer.cpp \
+    src/dialogs.cpp \
+    src/menu.cpp \
+    src/sqlite.cpp \
+    $(SHARED_DIR)/auxtools.cpp \
+    $(SHARED_DIR)/dbg.cpp \
+    $(SHARED_DIR)/mhandles.cpp \
+    $(SHARED_DIR)/winliblt.cpp \
+    $(SHARED_DIR)/plugindarkmode.cpp
+
+CPP_OBJS = $(CPP_SRCS:.cpp=.o)
+
+C_SRCS = src/sqlite/sqlite3.c
+C_OBJS = $(C_SRCS:.c=.o)
+
+ALL_OBJS = $(CPP_OBJS) $(C_OBJS) src/sqlite.res
+
+all: sqlite.spl english.slg czech.slg
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
+src/sqlite.res: src/sqlite.rc
+	cd src && $(RC) -O coff -I. -Ilang -I$(CURDIR)/$(SHARED_DIR) -I$(CURDIR)/$(SALAMAND_DIR) -i sqlite.rc -o sqlite.res
+
+src/lang/lang_en.res: src/lang/lang_en.rc
+	cd src/lang && $(RC) -O coff -I. -I.. -I$(CURDIR)/$(SHARED_DIR) -I$(CURDIR)/$(SALAMAND_DIR) -i lang_en.rc -o lang_en.res
+
+src/lang/lang_cs.res: src/lang/lang_cs.rc
+	cd src/lang && $(RC) -O coff -I. -I.. -I$(CURDIR)/$(SHARED_DIR) -I$(CURDIR)/$(SALAMAND_DIR) -i lang_cs.rc -o lang_cs.res
+
+sqlite.spl: $(ALL_OBJS) src/sqlite.def
+	$(CXX) -shared src/sqlite.def $(ALL_OBJS) $(LDFLAGS) -o $@
+
+english.slg: src/lang/lang_en.res
+	$(CXX) -shared -nostdlib -Wl,-e,0 $< -o $@
+
+czech.slg: src/lang/lang_cs.res
+	$(CXX) -shared -nostdlib -Wl,-e,0 $< -o $@
+
+clean:
+	-del /Q /F $(subst /,\,$(CPP_OBJS)) $(subst /,\,$(C_OBJS)) 2>nul
+	-del /Q /F src\sqlite.res src\lang\lang_en.res src\lang\lang_cs.res 2>nul
+	-del /Q /F sqlite.spl english.slg czech.slg 2>nul

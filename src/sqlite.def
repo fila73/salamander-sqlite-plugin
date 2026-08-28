@@ -1,0 +1,4 @@
+EXPORTS
+    SalamanderPluginEntry
+    SalamanderPluginGetReqVer
+    SalamanderPluginGetSDKVer

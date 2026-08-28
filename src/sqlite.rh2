@@ -1,0 +1,143 @@
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileContributor: Ported to Open Salamander framework by fila73
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#ifndef __SQLITE_RH2
+#define __SQLITE_RH2
+
+#if defined(APSTUDIO_INVOKED) && !defined(APSTUDIO_READONLY_SYMBOLS)
+#error this file is not editable by Microsoft Visual C++
+#endif
+
+#define IDC_STATIC_1 3000
+#include "statics.rh2" // 3000 to 3039 are reserved
+
+#define IDS_PLUGINNAME         46
+#define IDS_ABOUT              47
+#define IDS_PLUGIN_DESCRIPTION 48
+#define IDS_PLUGIN_HOME        49
+#define IDS_PLUGIN_BUGREP      50
+#define IDS_PLUGIN_EMAIL       51
+#define IDS_CFG_ALREADY_OPENED 52
+#define IDS_VIEWER_OPENWNDS    53
+#define IDS_CFG_TITLE          54
+#define IDS_INVALID_NUM        55
+#define IDS_REQUIRE_SAL500     56
+
+#define IDI_FILE               1000
+#define IDI_DIR                1001
+#define IDI_FS                 1002
+#define IDI_SQLITE             1003
+
+#define IDB_TOOLBAR16_PNG      102
+#define IDB_TOOLBAR256_PNG     103
+#define IDB_GRAYALPHA_PNG      104
+
+#define CM_POSTEDCOMMAND       1400
+
+#define CML_VIEWER_FILES       1500
+#define CM_VIEWER_OPEN         1501
+#define CM_VIEWER_EXIT         1502
+
+#define CML_VIEWER_EDIT        1520
+#define CM_VIEWER_COPY         1521
+#define CM_VIEWER_COPY_ALL     1522
+#define CM_VIEWER_COPY_CSV     1523
+#define CM_VIEWER_EXPORT_CSV   1524
+
+#define CML_VIEWER_VIEW        1530
+#define CM_VIEWER_REFRESH      1531
+#define CM_VIEWER_MODE_DATA    1532
+#define CM_VIEWER_MODE_SCHEMA  1533
+#define CM_VIEWER_MODE_SQL     1534
+#define CM_VIEWER_EXEC_SQL     1535
+#define CM_VIEWER_FIRST_PAGE   1536
+#define CM_VIEWER_PREV_PAGE    1537
+#define CM_VIEWER_NEXT_PAGE    1538
+#define CM_VIEWER_LAST_PAGE    1539
+#define CM_VIEWER_FILTER_FOCUS 1540
+
+#define CML_VIEWER_OPTIONS     1550
+#define CM_VIEWER_CFG          1551
+
+#define CML_VIEWER_HELP        1560
+#define CM_VIEWER_ABOUT        1561
+
+#define CM_OPEN_SQLITE_DB      1600
+
+// String IDs for menus
+#define IDS_MENU_FILES         2000
+#define IDS_MENU_FILES_OPEN    2001
+#define IDS_MENU_FILES_EXIT    2002
+
+#define IDS_MENU_EDIT          2010
+#define IDS_MENU_EDIT_COPY     2011
+#define IDS_MENU_EDIT_COPY_ALL 2012
+#define IDS_MENU_EDIT_COPY_CSV 2013
+#define IDS_MENU_EDIT_EXPORT   2014
+
+#define IDS_MENU_VIEW          2020
+#define IDS_MENU_REFRESH       2021
+#define IDS_MENU_MODE_DATA     2022
+#define IDS_MENU_MODE_SCHEMA   2023
+#define IDS_MENU_MODE_SQL      2024
+#define IDS_MENU_EXEC_SQL      2025
+#define IDS_MENU_FIRST_PAGE    2026
+#define IDS_MENU_PREV_PAGE     2027
+#define IDS_MENU_NEXT_PAGE     2028
+#define IDS_MENU_LAST_PAGE     2029
+
+#define IDS_MENU_OPTIONS       2040
+#define IDS_MENU_OPTIONS_CFG   2041
+
+#define IDS_MENU_HELP          2050
+#define IDS_MENU_HELP_ABOUT    2051
+
+// Tooltip String IDs
+#define IDS_TBTT_OPEN          2500
+#define IDS_TBTT_COPY          2501
+#define IDS_TBTT_REFRESH       2502
+#define IDS_TBTT_FIRST_PAGE    2503
+#define IDS_TBTT_PREV_PAGE     2504
+#define IDS_TBTT_NEXT_PAGE     2505
+#define IDS_TBTT_LAST_PAGE     2506
+#define IDS_TBTT_EXEC_SQL      2507
+#define IDS_TBTT_EXPORT_CSV    2508
+#define IDS_TBTT_MODE_DATA     2509
+#define IDS_TBTT_MODE_SCHEMA   2510
+#define IDS_TBTT_MODE_SQL      2511
+
+// General Viewer Strings
+#define IDS_TABLES_COMBO_LABEL 2600
+#define IDS_PAGE_SIZE_LABEL    2601
+#define IDS_FILTER_HINT        2602
+#define IDS_STATUS_READY       2603
+#define IDS_STATUS_LOADING     2604
+#define IDS_STATUS_ROWS_FMT    2605
+#define IDS_STATUS_QUERY_FMT   2606
+#define IDS_STATUS_QUERY_ERR   2607
+#define IDS_STATUS_EMPTY_TABLE 2608
+#define IDS_EXPORT_SUCCESS     2609
+#define IDS_EXPORT_FAILED      2610
+#define IDS_EXPORT_FILTER      2611
+#define IDS_NOT_A_SQLITE_DB    2612
+#define IDS_OPEN_DB_FILTER     2613
+#define IDS_OPEN_DB_TITLE      2614
+#define IDS_VIEW_DATA_TAB      2615
+#define IDS_VIEW_SCHEMA_TAB    2616
+#define IDS_VIEW_SQL_TAB       2617
+#define IDS_SQL_EXECUTE_BTN    2618
+#define IDS_SQL_DEFAULT_QUERY  2619
+#define IDS_PAGE_ALL           2620
+#define IDS_COL_CID            2621
+#define IDS_COL_NAME           2622
+#define IDS_COL_TYPE           2623
+#define IDS_COL_NOTNULL        2624
+#define IDS_COL_DEFAULT        2625
+#define IDS_COL_PK             2626
+#define IDS_SCHEMA_DDL_TITLE   2627
+#define IDS_SCHEMA_COLS_TITLE  2628
+#define IDS_SCHEMA_IDXS_TITLE  2629
+#define IDS_SCHEMA_FKS_TITLE   2630
+
+#endif // __SQLITE_RH2

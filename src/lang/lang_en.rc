@@ -1,0 +1,164 @@
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileContributor: Ported to Open Salamander framework by fila73
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#pragma code_page(65001)
+
+#include "lang.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+#include "winresrc.h"
+#include "../sqlite.rh2"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+
+#ifdef APSTUDIO_INVOKED
+1 TEXTINCLUDE 
+BEGIN
+    "lang.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winresrc.h""\r\n"
+    "#include ""../sqlite.rh2""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
+    "LANGUAGE LANG_ENGLISH,SUBLANG_ENGLISH_US\r\n"
+    "#include ""lang_en.rc2""\r\n"
+    "#endif\r\n"
+    "\0"
+END
+#endif // APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CFGPAGEVIEWER DIALOGEX 66, 53, 220, 130
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CAPTION
+CAPTION "SQLite Viewer"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Window Position",IDC_STATIC_1,4,4,212,38
+    CONTROL         "&Save on close",IDC_CFG_SAVEPOSONCLOSE,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,11,14,75,10
+    CONTROL         "S&et to position of Salamander's window",IDC_CFG_SETBYMAINWINDOW,
+                    "Button",BS_AUTORADIOBUTTON,11,26,170,10
+
+    GROUPBOX        "Display & Performance",IDC_STATIC_2,4,46,212,78
+    LTEXT           "Default page si&ze:",IDC_STATIC_3,11,58,70,8
+    COMBOBOX        IDC_CFG_PAGESIZE,85,56,60,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Max &query rows:",IDC_STATIC_4,11,74,70,8
+    EDITTEXT        IDC_CFG_ROWCAP,85,72,60,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Default &view:",IDC_STATIC_5,11,90,70,8
+    COMBOBOX        IDC_CFG_DEFAULTVIEW,85,88,85,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Directly open local files (read-only snapshot)",IDC_CFG_DIRECTOPEN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,106,195,10
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PLUGINNAME          "SQLite Viewer"
+    IDS_ABOUT               "About SQLite Viewer"
+    IDS_PLUGIN_DESCRIPTION  "Viewer for SQLite database files (.db, .sqlite, .sqlite3, etc.) with table browsing, sorting, paging, schema inspection, and SQL querying."
+    IDS_PLUGIN_HOME         "https://github.com/manison/OpenSalamander"
+    IDS_PLUGIN_BUGREP       "https://github.com/manison/OpenSalamander/issues"
+    IDS_PLUGIN_EMAIL        ""
+    IDS_CFG_ALREADY_OPENED  "Configuration dialog is already open."
+    IDS_VIEWER_OPENWNDS     "SQLite Viewer is currently open."
+    IDS_CFG_TITLE           "SQLite Viewer Configuration"
+    IDS_INVALID_NUM         "Please enter a valid positive number."
+    IDS_REQUIRE_SAL500      "This plugin requires Open Salamander 5.0 or newer."
+
+    IDS_MENU_FILES          "&File"
+    IDS_MENU_FILES_OPEN     "&Open Database...\tCtrl+O"
+    IDS_MENU_FILES_EXIT     "E&xit\tEsc"
+
+    IDS_MENU_EDIT           "&Edit"
+    IDS_MENU_EDIT_COPY      "&Copy Cell\tCtrl+C"
+    IDS_MENU_EDIT_COPY_ALL  "Copy &All Rows\tCtrl+A"
+    IDS_MENU_EDIT_COPY_CSV  "Copy as &CSV"
+    IDS_MENU_EDIT_EXPORT    "&Export Table to CSV...\tCtrl+E"
+
+    IDS_MENU_VIEW           "&View"
+    IDS_MENU_REFRESH        "&Refresh\tF5"
+    IDS_MENU_MODE_DATA      "&Table Data\tCtrl+1"
+    IDS_MENU_MODE_SCHEMA    "&Schema / DDL\tCtrl+2"
+    IDS_MENU_MODE_SQL       "S&QL Query\tCtrl+3"
+    IDS_MENU_EXEC_SQL       "&Execute SQL\tCtrl+Enter"
+    IDS_MENU_FIRST_PAGE     "&First Page\tAlt+Home"
+    IDS_MENU_PREV_PAGE      "&Previous Page\tAlt+Left"
+    IDS_MENU_NEXT_PAGE      "&Next Page\tAlt+Right"
+    IDS_MENU_LAST_PAGE      "&Last Page\tAlt+End"
+
+    IDS_MENU_OPTIONS        "&Options"
+    IDS_MENU_OPTIONS_CFG    "&Configuration..."
+
+    IDS_MENU_HELP           "&Help"
+    IDS_MENU_HELP_ABOUT     "&About SQLite Viewer..."
+
+    IDS_TBTT_OPEN           "Open SQLite database (Ctrl+O)"
+    IDS_TBTT_COPY           "Copy selected cell (Ctrl+C)"
+    IDS_TBTT_REFRESH        "Refresh data / re-run query (F5)"
+    IDS_TBTT_FIRST_PAGE     "First page (Alt+Home)"
+    IDS_TBTT_PREV_PAGE      "Previous page (Alt+Left)"
+    IDS_TBTT_NEXT_PAGE      "Next page (Alt+Right)"
+    IDS_TBTT_LAST_PAGE      "Last page (Alt+End)"
+    IDS_TBTT_EXEC_SQL       "Execute SQL query (Ctrl+Enter)"
+    IDS_TBTT_EXPORT_CSV     "Export table to CSV (Ctrl+E)"
+    IDS_TBTT_MODE_DATA      "Data grid view (Ctrl+1)"
+    IDS_TBTT_MODE_SCHEMA    "Schema / DDL view (Ctrl+2)"
+    IDS_TBTT_MODE_SQL       "SQL Query view (Ctrl+3)"
+
+    IDS_TABLES_COMBO_LABEL  "Table:"
+    IDS_PAGE_SIZE_LABEL     "Page:"
+    IDS_FILTER_HINT         "Filter rows..."
+    IDS_STATUS_READY        "Ready"
+    IDS_STATUS_LOADING      "Loading..."
+    IDS_STATUS_ROWS_FMT     "Rows %I64u - %I64u of %I64u (Page %u of %u)"
+    IDS_STATUS_QUERY_FMT    "%I64u row(s) returned in %.1f ms"
+    IDS_STATUS_QUERY_ERR    "SQL Error: %s"
+    IDS_STATUS_EMPTY_TABLE  "Table is empty (0 rows)"
+    IDS_EXPORT_SUCCESS      "Table exported successfully to '%s'."
+    IDS_EXPORT_FAILED       "Failed to export table: %s"
+    IDS_EXPORT_FILTER       "CSV Files (*.csv)\0*.csv\0All Files (*.*)\0*.*\0\0"
+    IDS_NOT_A_SQLITE_DB     "The file '%s' is not a valid SQLite database."
+    IDS_OPEN_DB_FILTER      "SQLite Databases (*.db;*.sqlite;*.sqlite3;*.db3;*.s3db;*.sl3)\0*.db;*.sqlite;*.sqlite3;*.db3;*.s3db;*.sl3\0All Files (*.*)\0*.*\0\0"
+    IDS_OPEN_DB_TITLE       "Open SQLite Database"
+    IDS_VIEW_DATA_TAB       "Data"
+    IDS_VIEW_SCHEMA_TAB     "Schema"
+    IDS_VIEW_SQL_TAB        "SQL Query"
+    IDS_SQL_EXECUTE_BTN     "Execute (Ctrl+Enter)"
+    IDS_SQL_DEFAULT_QUERY   "SELECT * FROM %s LIMIT 100;"
+    IDS_PAGE_ALL            "All"
+    IDS_COL_CID             "#"
+    IDS_COL_NAME            "Name"
+    IDS_COL_TYPE            "Type"
+    IDS_COL_NOTNULL         "Not Null"
+    IDS_COL_DEFAULT         "Default"
+    IDS_COL_PK              "PK"
+    IDS_SCHEMA_DDL_TITLE    "SQL Table DDL Definition:"
+    IDS_SCHEMA_COLS_TITLE   "Columns:"
+    IDS_SCHEMA_IDXS_TITLE   "Indexes:"
+    IDS_SCHEMA_FKS_TITLE    "Foreign Keys:"
+END
+
+#endif // English (U.S.) resources
+
+#ifndef APSTUDIO_INVOKED
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#include "lang_en.rc2"
+#endif
+#endif

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{8D7B3C2A-1E4F-4C9A-8B3D-7E5F6A1B2C3D}</ProjectGuid>
+    <RootNamespace>sqlite</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="sqlite.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <ItemGroup>
+    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\auxtools.cpp" />
+    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\dbg.cpp" />
+    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\mhandles.cpp" />
+    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\plugindarkmode.cpp" />
+    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\winliblt.cpp" />
+    <ClCompile Include="..\dialogs.cpp" />
+    <ClCompile Include="..\menu.cpp" />
+    <ClCompile Include="..\precomp.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\sqlite.cpp" />
+    <ClCompile Include="..\sqlite_engine.cpp" />
+    <ClCompile Include="..\sqlitedarkmode.cpp" />
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\viewer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\dialogs.h" />
+    <ClInclude Include="..\precomp.h" />
+    <ClInclude Include="..\sqlite.h" />
+    <ClInclude Include="..\sqlite.rh" />
+    <ClInclude Include="..\sqlite.rh2" />
+    <ClInclude Include="..\sqlite_engine.h" />
+    <ClInclude Include="..\sqlitedarkmode.h" />
+    <ClInclude Include="..\sqlite\sqlite3.h" />
+    <ClInclude Include="..\versinfo.rh2" />
+    <ClInclude Include="..\viewer.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\sqlite.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\sqlite.def" />
+    <None Include="..\sqlite.rc2" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

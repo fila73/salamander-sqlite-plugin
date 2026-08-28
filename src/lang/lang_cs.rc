@@ -1,0 +1,164 @@
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileContributor: Ported to Open Salamander framework by fila73
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#pragma code_page(65001)
+
+#include "lang.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+#include "winresrc.h"
+#include "../sqlite.rh2"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CSY)
+LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
+
+#ifdef APSTUDIO_INVOKED
+1 TEXTINCLUDE 
+BEGIN
+    "lang.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winresrc.h""\r\n"
+    "#include ""../sqlite.rh2""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CSY)\r\n"
+    "LANGUAGE LANG_CZECH,SUBLANG_DEFAULT\r\n"
+    "#include ""lang_cs.rc2""\r\n"
+    "#endif\r\n"
+    "\0"
+END
+#endif // APSTUDIO_INVOKED
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_CFGPAGEVIEWER DIALOGEX 66, 53, 220, 130
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CONTROL | WS_CHILD | WS_CAPTION
+CAPTION "Prohlížeč SQLite"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    GROUPBOX        "Pozice okna",IDC_STATIC_1,4,4,212,38
+    CONTROL         "&Uložit při zavření",IDC_CFG_SAVEPOSONCLOSE,"Button",BS_AUTORADIOBUTTON | WS_GROUP | WS_TABSTOP,11,14,75,10
+    CONTROL         "Nastavit podle &okna Salamanderu",IDC_CFG_SETBYMAINWINDOW,
+                    "Button",BS_AUTORADIOBUTTON,11,26,170,10
+
+    GROUPBOX        "Zobrazení a výkon",IDC_STATIC_2,4,46,212,78
+    LTEXT           "Výchozí &velikost stránky:",IDC_STATIC_3,11,58,80,8
+    COMBOBOX        IDC_CFG_PAGESIZE,95,56,60,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    LTEXT           "Max &řádků pro dotaz:",IDC_STATIC_4,11,74,80,8
+    EDITTEXT        IDC_CFG_ROWCAP,95,72,60,12,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Výchozí &zobrazení:",IDC_STATIC_5,11,90,80,8
+    COMBOBOX        IDC_CFG_DEFAULTVIEW,95,88,85,60,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "&Přímo otevírat lokální soubory (snímek jen pro čtení)",IDC_CFG_DIRECTOPEN,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,11,106,195,10
+END
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// String Table
+//
+
+STRINGTABLE
+BEGIN
+    IDS_PLUGINNAME          "Prohlížeč SQLite"
+    IDS_ABOUT               "O prohlížeči SQLite"
+    IDS_PLUGIN_DESCRIPTION  "Prohlížeč pro databázové soubory SQLite (.db, .sqlite, .sqlite3 atd.) s procházením tabulek, řazením, stránkováním, zobrazením schématu a spouštěním SQL dotazů."
+    IDS_PLUGIN_HOME         "https://github.com/manison/OpenSalamander"
+    IDS_PLUGIN_BUGREP       "https://github.com/manison/OpenSalamander/issues"
+    IDS_PLUGIN_EMAIL        ""
+    IDS_CFG_ALREADY_OPENED  "Konfigurační dialog je již otevřen."
+    IDS_VIEWER_OPENWNDS     "Prohlížeč SQLite je aktuálně otevřen."
+    IDS_CFG_TITLE           "Konfigurace prohlížeče SQLite"
+    IDS_INVALID_NUM         "Zadejte platné kladné číslo."
+    IDS_REQUIRE_SAL500      "Tento plugin vyžaduje Open Salamander 5.0 nebo novější."
+
+    IDS_MENU_FILES          "&Soubor"
+    IDS_MENU_FILES_OPEN     "&Otevřít databázi...\tCtrl+O"
+    IDS_MENU_FILES_EXIT     "&Konec\tEsc"
+
+    IDS_MENU_EDIT           "&Úpravy"
+    IDS_MENU_EDIT_COPY      "&Kopírovat buňku\tCtrl+C"
+    IDS_MENU_EDIT_COPY_ALL  "Kopírovat &všechny řádky\tCtrl+A"
+    IDS_MENU_EDIT_COPY_CSV  "Kopírovat jako &CSV"
+    IDS_MENU_EDIT_EXPORT    "&Exportovat tabulku do CSV...\tCtrl+E"
+
+    IDS_MENU_VIEW           "&Zobrazit"
+    IDS_MENU_REFRESH        "&Obnovit\tF5"
+    IDS_MENU_MODE_DATA      "&Data tabulky\tCtrl+1"
+    IDS_MENU_MODE_SCHEMA    "&Schéma / DDL\tCtrl+2"
+    IDS_MENU_MODE_SQL       "S&QL Dotaz\tCtrl+3"
+    IDS_MENU_EXEC_SQL       "&Spustit SQL\tCtrl+Enter"
+    IDS_MENU_FIRST_PAGE     "&První stránka\tAlt+Home"
+    IDS_MENU_PREV_PAGE      "Pře&dchozí stránka\tAlt+Left"
+    IDS_MENU_NEXT_PAGE      "&Další stránka\tAlt+Right"
+    IDS_MENU_LAST_PAGE      "&Poslední stránka\tAlt+End"
+
+    IDS_MENU_OPTIONS        "&Možnosti"
+    IDS_MENU_OPTIONS_CFG    "&Konfigurace..."
+
+    IDS_MENU_HELP           "&Nápověda"
+    IDS_MENU_HELP_ABOUT     "&O prohlížeči SQLite..."
+
+    IDS_TBTT_OPEN           "Otevřít SQLite databázi (Ctrl+O)"
+    IDS_TBTT_COPY           "Kopírovat vybranou buňku (Ctrl+C)"
+    IDS_TBTT_REFRESH        "Obnovit data / znovu provést dotaz (F5)"
+    IDS_TBTT_FIRST_PAGE     "První stránka (Alt+Home)"
+    IDS_TBTT_PREV_PAGE      "Předchozí stránka (Alt+Left)"
+    IDS_TBTT_NEXT_PAGE      "Další stránka (Alt+Right)"
+    IDS_TBTT_LAST_PAGE      "Poslední stránka (Alt+End)"
+    IDS_TBTT_EXEC_SQL       "Provést SQL dotaz (Ctrl+Enter)"
+    IDS_TBTT_EXPORT_CSV     "Exportovat tabulku do CSV (Ctrl+E)"
+    IDS_TBTT_MODE_DATA      "Zobrazení tabulky (Ctrl+1)"
+    IDS_TBTT_MODE_SCHEMA    "Zobrazení schématu / DDL (Ctrl+2)"
+    IDS_TBTT_MODE_SQL       "Zobrazení SQL dotazů (Ctrl+3)"
+
+    IDS_TABLES_COMBO_LABEL  "Tabulka:"
+    IDS_PAGE_SIZE_LABEL     "Stránka:"
+    IDS_FILTER_HINT         "Filtrovat řádky..."
+    IDS_STATUS_READY        "Připraven"
+    IDS_STATUS_LOADING      "Načítám..."
+    IDS_STATUS_ROWS_FMT     "Řádky %I64u - %I64u z %I64u (Strana %u z %u)"
+    IDS_STATUS_QUERY_FMT    "Vráceno %I64u řádků za %.1f ms"
+    IDS_STATUS_QUERY_ERR    "Chyba SQL: %s"
+    IDS_STATUS_EMPTY_TABLE  "Tabulka je prázdná (0 řádků)"
+    IDS_EXPORT_SUCCESS      "Tabulka byla úspěšně exportována do '%s'."
+    IDS_EXPORT_FAILED       "Export tabulky selhal: %s"
+    IDS_EXPORT_FILTER       "Soubory CSV (*.csv)\0*.csv\0Všechny soubory (*.*)\0*.*\0\0"
+    IDS_NOT_A_SQLITE_DB     "Soubor '%s' není platnou databází SQLite."
+    IDS_OPEN_DB_FILTER      "Databáze SQLite (*.db;*.sqlite;*.sqlite3;*.db3;*.s3db;*.sl3)\0*.db;*.sqlite;*.sqlite3;*.db3;*.s3db;*.sl3\0Všechny soubory (*.*)\0*.*\0\0"
+    IDS_OPEN_DB_TITLE       "Otevřít SQLite databázi"
+    IDS_VIEW_DATA_TAB       "Data"
+    IDS_VIEW_SCHEMA_TAB     "Schéma"
+    IDS_VIEW_SQL_TAB        "SQL Dotaz"
+    IDS_SQL_EXECUTE_BTN     "Spustit (Ctrl+Enter)"
+    IDS_SQL_DEFAULT_QUERY   "SELECT * FROM %s LIMIT 100;"
+    IDS_PAGE_ALL            "Vše"
+    IDS_COL_CID             "#"
+    IDS_COL_NAME            "Název"
+    IDS_COL_TYPE            "Typ"
+    IDS_COL_NOTNULL         "Not Null"
+    IDS_COL_DEFAULT         "Výchozí"
+    IDS_COL_PK              "PK"
+    IDS_SCHEMA_DDL_TITLE    "Definice tabulky (SQL DDL):"
+    IDS_SCHEMA_COLS_TITLE   "Sloupce:"
+    IDS_SCHEMA_IDXS_TITLE   "Indexy:"
+    IDS_SCHEMA_FKS_TITLE    "Cizí klíče:"
+END
+
+#endif // Czech resources
+
+#ifndef APSTUDIO_INVOKED
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CSY)
+LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
+#include "lang_cs.rc2"
+#endif
+#endif

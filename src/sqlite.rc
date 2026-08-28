@@ -1,0 +1,67 @@
+// SPDX-FileCopyrightText: 2026 Open Salamander Authors & Red Salamander Authors
+// SPDX-FileContributor: Ported to Open Salamander framework by fila73
+// SPDX-License-Identifier: GPL-2.0-or-later
+
+#pragma code_page(65001)
+
+#include "sqlite.rh"
+
+#define APSTUDIO_READONLY_SYMBOLS
+#include "winresrc.h"
+#include "sqlite.rh2"
+#undef APSTUDIO_READONLY_SYMBOLS
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+
+#ifdef APSTUDIO_INVOKED
+1 TEXTINCLUDE 
+BEGIN
+    "sqlite.rh\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winresrc.h""\r\n"
+    "\r\n"
+    "#include ""sqlite.rh2""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)\r\n"
+    "LANGUAGE LANG_NEUTRAL,SUBLANG_NEUTRAL\r\n"
+    "#include ""sqlite.rc2""\r\n"
+    "#endif\r\n"
+    "\0"
+END
+#endif // APSTUDIO_INVOKED
+
+IDA_ACCELERATORS ACCELERATORS 
+BEGIN
+    VK_ESCAPE,      CM_VIEWER_EXIT,         VIRTKEY, NOINVERT
+    "O",            CM_VIEWER_OPEN,         VIRTKEY, CONTROL, NOINVERT
+    "C",            CM_VIEWER_COPY,         VIRTKEY, CONTROL, NOINVERT
+    "A",            CM_VIEWER_COPY_ALL,     VIRTKEY, CONTROL, NOINVERT
+    "F",            CM_VIEWER_FILTER_FOCUS, VIRTKEY, CONTROL, NOINVERT
+    "E",            CM_VIEWER_EXPORT_CSV,   VIRTKEY, CONTROL, NOINVERT
+    VK_F5,          CM_VIEWER_REFRESH,      VIRTKEY, NOINVERT
+    VK_RETURN,      CM_VIEWER_EXEC_SQL,     VIRTKEY, CONTROL, NOINVERT
+    VK_LEFT,        CM_VIEWER_PREV_PAGE,    VIRTKEY, ALT, NOINVERT
+    VK_RIGHT,       CM_VIEWER_NEXT_PAGE,    VIRTKEY, ALT, NOINVERT
+    VK_HOME,        CM_VIEWER_FIRST_PAGE,   VIRTKEY, ALT, NOINVERT
+    VK_END,         CM_VIEWER_LAST_PAGE,    VIRTKEY, ALT, NOINVERT
+    "1",            CM_VIEWER_MODE_DATA,    VIRTKEY, CONTROL, NOINVERT
+    "2",            CM_VIEWER_MODE_SCHEMA,  VIRTKEY, CONTROL, NOINVERT
+    "3",            CM_VIEWER_MODE_SQL,     VIRTKEY, CONTROL, NOINVERT
+END
+
+#endif // Neutral resources
+
+#ifndef APSTUDIO_INVOKED
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_NEU)
+LANGUAGE LANG_NEUTRAL, SUBLANG_NEUTRAL
+#include "sqlite.rc2"
+#endif
+#endif
