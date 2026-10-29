@@ -42,6 +42,19 @@ Palette GetPalette()
     return p;
 }
 
+void ApplyComboThemes(HWND a, HWND b, HWND c)
+{
+    bool dark = IsDarkMode();
+    HWND list[3] = {a, b, c};
+    for (HWND h : list)
+    {
+        if (h == NULL)
+            continue;
+        SetWindowTheme(h, dark ? L"DarkMode_CFD" : NULL, NULL);
+        InvalidateRect(h, NULL, TRUE);
+    }
+}
+
 void ApplyListViewColors(HWND hwndList)
 {
     if (!hwndList)

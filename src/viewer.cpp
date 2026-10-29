@@ -373,7 +373,7 @@ bool CViewerWindow::CreateViewerControls()
     // Create SQL Query controls
     m_hEditSqlQuery = CreateWindowEx(
         WS_EX_CLIENTEDGE, "EDIT", "SELECT * FROM sqlite_master;",
-        WS_CHILD | WS_TABSTOP | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN,
+        WS_CHILD | WS_TABSTOP | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN,
         0, 0, 100, 80, HWindow, (HMENU)IDC_EDIT_SQL_QUERY, DLLInstance, NULL);
     SendMessage(m_hEditSqlQuery, WM_SETFONT, (WPARAM)m_hFontMono, TRUE);
 
@@ -429,6 +429,7 @@ bool CViewerWindow::CreateViewerControls()
 
     // Dark mode: theme the window and all controls created above (darkmodelib via winliblt)
     WinLibApplyDarkMode(HWindow);
+    SqliteDarkMode::ApplyComboThemes(m_hComboTables, m_hComboMode, m_hComboPageSize);
     SqliteDarkMode::ApplyListViewColors(m_hListViewData);
     SqliteDarkMode::ApplyListViewColors(m_hListViewSchema);
     SqliteDarkMode::ApplyListViewColors(m_hListViewSql);
@@ -1080,12 +1081,26 @@ LRESULT CViewerWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     {
         LRESULT r = CWindow::WindowProc(uMsg, wParam, lParam);
         WinLibApplyDarkMode(HWindow);
+        SqliteDarkMode::ApplyComboThemes(m_hComboTables, m_hComboMode, m_hComboPageSize);
         SqliteDarkMode::ApplyListViewColors(m_hListViewData);
         SqliteDarkMode::ApplyListViewColors(m_hListViewSchema);
         SqliteDarkMode::ApplyListViewColors(m_hListViewSql);
         RedrawWindow(HWindow, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_FRAME);
         return r;
     }
+
+    case WM_ERASEBKGND:
+        // Dark mode: paint the gaps between child controls (toolbar strip, button row, borders)
+        if (SqliteDarkMode::IsDarkMode())
+        {
+            RECT rcClient;
+            GetClientRect(HWindow, &rcClient);
+            HBRUSH hBr = CreateSolidBrush(DarkModeGetColors().background);
+            FillRect((HDC)wParam, &rcClient, hBr);
+            DeleteObject(hBr);
+            return 1;
+        }
+        break;
 
     case WM_CTLCOLORDLG:
     case WM_CTLCOLORSTATIC:

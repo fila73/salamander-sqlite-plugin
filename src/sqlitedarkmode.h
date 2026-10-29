@@ -32,6 +32,9 @@ Palette GetPalette();
 // Sets ListView background/text colours from the current palette.
 void ApplyListViewColors(HWND hwndList);
 
+// Gives the dropdown comboboxes the dark (DarkMode_CFD) visual style; resets it in light mode.
+void ApplyComboThemes(HWND a, HWND b, HWND c);
+
 LRESULT HandleListViewCustomDraw(HWND hwndList, LPNMLVCUSTOMDRAW lplvcd, bool isQueryMode = false);
 
 } // namespace SqliteDarkMode
