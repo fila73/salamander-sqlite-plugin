@@ -22,3 +22,4 @@ x64/
 test_*.db
 test_*.csv
 *.zip
+build/

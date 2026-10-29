@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shared settings for sqlite.vcxproj and the lang_*.vcxproj projects.
+     Workspace layout: the plugin SDK is taken from the samandarin fork,
+     salamander\samandarin\src (so $(SalamanderSdkDir)plugins\shared is the SDK). Override with
+     /p:SalamanderSdkDir=<path to a dir containing plugins\shared> if it lives elsewhere. -->
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="UserMacros">
+    <SqliteRootDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\..\'))</SqliteRootDir>
+    <SqliteSrcDir>$(SqliteRootDir)src\</SqliteSrcDir>
+    <SalamanderSdkDir Condition="'$(SalamanderSdkDir)'==''">$([System.IO.Path]::GetFullPath('$(SqliteRootDir)..\..\samandarin\src'))</SalamanderSdkDir>
+    <SalamanderSdkDir Condition="!HasTrailingSlash('$(SalamanderSdkDir)')">$(SalamanderSdkDir)\</SalamanderSdkDir>
+    <SalamanderSharedDir>$(SalamanderSdkDir)plugins\shared\</SalamanderSharedDir>
+    <SqliteOutDir>$(SqliteRootDir)build\$(Configuration)_$(Platform)\</SqliteOutDir>
+  </PropertyGroup>
+  <PropertyGroup>
+    <GenerateManifest>false</GenerateManifest>
+    <EmbedManifest>false</EmbedManifest>
+  </PropertyGroup>
+  <Target Name="SqliteCheckSdk" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(SalamanderSharedDir)spl_base.h')"
+           Text="Open Salamander SDK not found in '$(SalamanderSdkDir)'. Pass /p:SalamanderSdkDir=&lt;path to samandarin\src&gt;." />
+  </Target>
+</Project>

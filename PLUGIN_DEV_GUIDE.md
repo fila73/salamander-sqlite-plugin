@@ -13,7 +13,7 @@ Plugin do Salamandera se skládá z:
 ### Doporučená adresářová struktura:
 
 ```
-salamander-gdrive-plugin/
+salamander-sqlite-plugin/        # v salamander\plugins\
 ├── src/
 │   ├── gdrive.cpp          # Hlavní vstup, DllMain, CPluginInterface, CPluginInterfaceForFS/Viewer
 │   ├── gdrive.h            # Hlavičkový soubor pluginu
@@ -29,8 +29,7 @@ salamander-gdrive-plugin/
 │       ├── lang_en.rc      # Anglické texty a dialogy
 │       └── lang_cs.rc      # České texty a dialogy
 ├── test/                   # Unit testy pro nezávislou engine vrstvu
-├── Makefile.mingw          # Sestavení pomocí MinGW-w64 (GCC/G++)
-├── gdrive.vcxproj          # Sestavení pomocí Microsoft Visual Studio (MSVC)
+├── src/vcxproj/            # MSBuild: sqlite_common.props, sqlite.vcxproj, lang_sqlite*.vcxproj (MSVC)
 ├── README.md               # Dokumentace a návod k instalaci
 └── .gitignore
 ```
@@ -39,7 +38,7 @@ salamander-gdrive-plugin/
 
 ## 2. Klíčové rozhraní Open Salamander Plugin SDK
 
-Plugin komunikuje se Salamanderem přes virtuální C++ třídy definované v `salamander-plugins/salamand/plugins/shared/`:
+Plugin komunikuje se Salamanderem přes virtuální C++ třídy definované v SDK `salamander\samandarin\src\plugins\shared\`:
 
 ### Hlavní rozhraní:
 1. **`CPluginInterface`**:
@@ -61,20 +60,17 @@ Plugin komunikuje se Salamanderem přes virtuální C++ třídy definované v `s
 
 ## 3. Zásadní pravidla a řešení známých chyb (Gotchas)
 
-### ⚠️ 1. Statické linkování běhových knihoven v MinGW (`-static`)
-Pokud se použije MinGW GCC/G++, kompilátor ve výchozím stavu dynamicky linkuje `libwinpthread-1.dll`, `libstdc++-6.dll` a `libgcc_s_dw2-1.dll`. Na jiných počítačích pak Salamander zahlásí:
+### ⚠️ 1. Statické linkování CRT (`/MT`)
+Plugin se musí sestavit s `/MT` (`/MTd` v Debugu), aby nezávisel na `vcruntime`/`ucrt` DLL. Jinak na jiných počítačích Salamander zahlásí:
 > `Chyba 126: Uvedený modul nebyl nalezen.`
 
-**Řešení v `Makefile.mingw`**:
-```make
-LDFLAGS = -shared -s -static -static-libgcc -static-libstdc++ \
-    -lshlwapi -lcomctl32 -lcomdlg32 -lole32 -lshell32 -lgdi32 -lmsimg32 -luxtheme -ldwmapi
-```
+**Řešení v `sqlite.vcxproj`**: `<RuntimeLibrary>MultiThreaded</RuntimeLibrary>` (Release) a `MultiThreadedDebug` (Debug).
+
 Vždy zkontrolujte závislosti příkazem:
 ```powershell
-objdump -p gdrive.spl | Select-String "DLL Name"
+dumpbin /dependents build\Release_x64\sqlite.spl
 ```
-Musí obsahovat pouze standardní knihovny Windows (KERNEL32, USER32, GDI32, COMCTL32, api-ms-win-crt-*).
+Musí obsahovat pouze standardní knihovny Windows (KERNEL32, USER32, GDI32, COMCTL32, ...), žádné `vcruntime*`/`msvcp*`/`api-ms-win-crt-*`.
 
 ---
 
@@ -173,61 +169,19 @@ else
 
 ---
 
-## 4. Šablona `Makefile.mingw` (pro MinGW-w64)
+## 4. Sestavení pomocí MSBuild (MSVC)
 
-```make
-CROSS_COMPILE ?= 
-CXX = $(CROSS_COMPILE)g++
-CC = $(CROSS_COMPILE)gcc
-RC = $(CROSS_COMPILE)windres
+Projekty jsou v `src\vcxproj\`; společné cesty definuje `sqlite_common.props` (`SalamanderSdkDir` ve výchozím stavu `<repo>\..\..\samandarin\src`, přepsatelné přes `/p:SalamanderSdkDir=`). Výstup jde do `build\<Configuration>_<Platform>\`.
 
-SALAMAND_DIR = ../salamander-plugins/salamand
-SHARED_DIR = ../salamander-plugins/salamand/plugins/shared
-
-CXXFLAGS = -O2 -Wall -Wno-unknown-pragmas -Wno-unused-variable -Wno-unused-function -Wno-parentheses -std=c++17 \
-    -DWIN32 -D_WIN32 -D_WINDOWS -D_USRDLL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 \
-    -D_CRT_SECURE_NO_WARNINGS -DUNICODE_NOT_USED -D_FILE_OFFSET_BITS=64 \
-    -Isrc -Isrc/lang -I$(SHARED_DIR) -I$(SALAMAND_DIR)
-
-LDFLAGS = -shared -s -static -static-libgcc -static-libstdc++ \
-    -lshlwapi -lcomctl32 -lcomdlg32 -lole32 -lshell32 -lgdi32 -lmsimg32 -luxtheme -ldwmapi
-
-CPP_SRCS = \
-    src/gdrive.cpp \
-    src/dialogs.cpp \
-    src/menu.cpp \
-    src/gdrivedarkmode.cpp \
-    $(SHARED_DIR)/auxtools.cpp \
-    $(SHARED_DIR)/dbg.cpp \
-    $(SHARED_DIR)/mhandles.cpp \
-    $(SHARED_DIR)/winliblt.cpp \
-    $(SHARED_DIR)/plugindarkmode.cpp
-
-CPP_OBJS = $(CPP_SRCS:.cpp=.o)
-ALL_OBJS = $(CPP_OBJS) src/gdrive.res
-
-all: gdrive.spl english.slg czech.slg
-
-%.o: %.cpp
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-src/gdrive.res: src/gdrive.rc
-	cd src && $(RC) -O coff -I. -Ilang -I$(SHARED_DIR) -I$(SALAMAND_DIR) -i gdrive.rc -o gdrive.res
-
-gdrive.spl: $(ALL_OBJS) src/gdrive.def
-	$(CXX) -shared src/gdrive.def $(ALL_OBJS) $(LDFLAGS) -o $@
-
-english.slg: src/lang/lang_en.rc
-	cd src/lang && $(RC) -O coff -I. -I.. -I$(SHARED_DIR) -I$(SALAMAND_DIR) -i lang_en.rc -o lang_en.res
-	$(CXX) -shared -nostdlib -Wl,-e,0 src/lang/lang_en.res -o $@
-
-czech.slg: src/lang/lang_cs.rc
-	cd src/lang && $(RC) -O coff -I. -I.. -I$(SHARED_DIR) -I$(SALAMAND_DIR) -i lang_cs.rc -o lang_cs.res
-	$(CXX) -shared -nostdlib -Wl,-e,0 src/lang/lang_cs.res -o $@
-
-clean:
-	rm -f src/*.o src/lang/*.res src/*.res *.spl *.slg
+```cmd
+MSBuild src\vcxproj\sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild src\vcxproj\lang_sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild src\vcxproj\lang_sqlite_cs.vcxproj /p:Configuration=Release /p:Platform=x64
 ```
+
+- `sqlite.vcxproj` – `sqlite.spl`; sdílené zdroje SDK (`auxtools.cpp`, `dbg.cpp`, `mhandles.cpp`, `winliblt.cpp`, `plugindarkmode.cpp`) se kompilují přímo z `$(SalamanderSharedDir)`.
+- `lang_sqlite.vcxproj` / `lang_sqlite_cs.vcxproj` – resource-only DLL `lang\english.slg` / `lang\czech.slg`.
+- Každý nový `.cpp` ze `src\` musí být přidán do `sqlite.vcxproj`, jinak vzniknou nevyřešené externí symboly.
 
 ---
 
@@ -261,16 +215,17 @@ gh repo create fila73/salamander-gdrive-plugin --public --source=. --remote=orig
 ### Balení a publikování nového Release (např. v0.1):
 ```powershell
 # 1. Kompilace čistého sestavení
-mingw32-make -f Makefile.mingw clean
-mingw32-make -f Makefile.mingw
+MSBuild -t:Rebuild src\vcxproj\sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild -t:Rebuild src\vcxproj\lang_sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild -t:Rebuild src\vcxproj\lang_sqlite_cs.vcxproj /p:Configuration=Release /p:Platform=x64
 
 # 2. Příprava distribučního ZIP archivu
 $stage = "release_stage"
 if (Test-Path $stage) { Remove-Item -Recurse -Force $stage }
 New-Item -ItemType Directory -Path "$stage\lang" | Out-Null
-Copy-Item "gdrive.spl" -Destination "$stage\gdrive.spl"
-Copy-Item "english.slg" -Destination "$stage\lang\english.slg"
-Copy-Item "czech.slg" -Destination "$stage\lang\czech.slg"
+Copy-Item "build\Release_x64\sqlite.spl" -Destination "$stage\sqlite.spl"
+Copy-Item "build\Release_x64\lang\english.slg" -Destination "$stage\lang\english.slg"
+Copy-Item "build\Release_x64\lang\czech.slg" -Destination "$stage\lang\czech.slg"
 
 $zipName = "salamander-gdrive-plugin-v0.1.zip"
 if (Test-Path $zipName) { Remove-Item -Force $zipName }

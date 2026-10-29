@@ -37,17 +37,21 @@ A high-performance SQLite database viewer plugin for **Altap Salamander / Open S
 
 ## Building
 
-### MinGW-w64 (GCC)
-```cmd
-mingw32-make -f Makefile.mingw
-```
-Outputs:
-- `sqlite.spl` - Plugin DLL
-- `english.slg` - English language module
-- `czech.slg` - Czech language module
+### MSVC (MSBuild)
+Requires Visual Studio 2022+ (C++ desktop workload) and the Open Salamander plugin SDK. The workspace layout is `salamander\plugins\salamander-sqlite-plugin` (this repo) and the SDK in `salamander\samandarin\src\plugins\shared`; the SDK is found automatically, or pass `/p:SalamanderSdkDir=<path to the dir containing plugins\shared>`.
 
-### Visual Studio / MSVC
-Open `src/vcxproj/sqlite.vcxproj` and build with Release/x64 or Debug/x64 configuration.
+```cmd
+MSBuild src\vcxproj\sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild src\vcxproj\lang_sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild src\vcxproj\lang_sqlite_cs.vcxproj /p:Configuration=Release /p:Platform=x64
+```
+
+Outputs in `build\Release_x64\`:
+- `sqlite.spl` - Plugin DLL (x64, static CRT)
+- `lang\english.slg` - English language module
+- `lang\czech.slg` - Czech language module
+
+Use `/p:Configuration=Debug` for a debug build (`build\Debug_x64\`). The projects can also be opened in Visual Studio.
 
 ## Installation
 

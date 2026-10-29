@@ -37,17 +37,21 @@ Výkonný prohlížeč SQLite databází pro souborového správce **Altap Salam
 
 ## Sestavení (Build)
 
-### MinGW-w64 (GCC)
-```cmd
-mingw32-make -f Makefile.mingw
-```
-Výstupní soubory:
-- `sqlite.spl` - Plugin DLL
-- `english.slg` - Anglický jazykový modul
-- `czech.slg` - Český jazykový modul
+### MSVC (MSBuild)
+Vyžaduje Visual Studio 2022+ (C++ desktop workload) a SDK pluginů Open Salamanderu. Očekávané uspořádání: `salamander\plugins\salamander-sqlite-plugin` (tento repozitář) a SDK v `salamander\samandarin\src\plugins\shared`; SDK se najde automaticky, jinak zadejte `/p:SalamanderSdkDir=<cesta k adresáři obsahujícímu plugins\shared>`.
 
-### Visual Studio / MSVC
-Otevřete `src/vcxproj/sqlite.vcxproj` a sestavte pro Release/x64 nebo Debug/x64.
+```cmd
+MSBuild src\vcxproj\sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild src\vcxproj\lang_sqlite.vcxproj /p:Configuration=Release /p:Platform=x64
+MSBuild src\vcxproj\lang_sqlite_cs.vcxproj /p:Configuration=Release /p:Platform=x64
+```
+
+Výstupní soubory v `build\Release_x64\`:
+- `sqlite.spl` - Plugin DLL (x64, statické CRT)
+- `lang\english.slg` - Anglický jazykový modul
+- `lang\czech.slg` - Český jazykový modul
+
+Pro ladicí sestavení použijte `/p:Configuration=Debug` (`build\Debug_x64\`). Projekty lze otevřít i ve Visual Studiu.
 
 ## Instalace do Salamanderu
 

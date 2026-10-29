@@ -11,42 +11,50 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{1A2B3C4D-5E6F-7A8B-9C0D-1E2F3A4B5C6D}</ProjectGuid>
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{7B1E4C20-5D3A-4F68-9A12-3C8E6D0B4A11}</ProjectGuid>
     <RootNamespace>lang_sqlite</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="lang_sqlite.props" />
+    <Import Project="sqlite_common.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <!-- resource-only DLL with the english language strings -->
+  <PropertyGroup>
+    <OutDir>$(SqliteOutDir)lang\</OutDir>
+    <IntDir>$(SqliteOutDir)obj\lang_sqlite\</IntDir>
+    <TargetName>english</TargetName>
+    <TargetExt>.slg</TargetExt>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <NoEntryPoint>true</NoEntryPoint>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <TargetMachine>MachineX64</TargetMachine>
+      <AdditionalDependencies />
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SqliteSrcDir)lang;$(SqliteSrcDir);$(SalamanderSharedDir);$(SalamanderSdkDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINVER=0x0601;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ResourceCompile Include="..\lang\lang_en.rc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\lang\lang.rh" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="..\lang\lang_en.rc2" />
+    <None Include="..\lang\lang.rh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
 </Project>

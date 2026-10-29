@@ -11,56 +11,114 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>16.0</VCProjectVersion>
-    <ProjectGuid>{8D7B3C2A-1E4F-4C9A-8B3D-7E5F6A1B2C3D}</ProjectGuid>
+    <VCProjectVersion>17.0</VCProjectVersion>
+    <ProjectGuid>{3E5B8A91-6C2D-4D17-B0F4-8A1C7E9D5F33}</ProjectGuid>
     <RootNamespace>sqlite</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+  <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
-    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>$(DefaultPlatformToolset)</PlatformToolset>
+    <CharacterSet>NotSet</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'" Label="Configuration">
+    <UseDebugLibraries>true</UseDebugLibraries>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
-  <ImportGroup Label="ExtensionSettings">
-  </ImportGroup>
-  <ImportGroup Label="Shared">
-  </ImportGroup>
   <ImportGroup Label="PropertySheets">
-    <Import Project="sqlite.props" />
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="sqlite_common.props" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir>$(SqliteOutDir)</OutDir>
+    <IntDir>$(SqliteOutDir)obj\sqlite\</IntDir>
+    <TargetName>sqlite</TargetName>
+    <TargetExt>.spl</TargetExt>
+    <IgnoreImportLibrary>true</IgnoreImportLibrary>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <!-- static CRT (standalone .spl), UTF-8 source charset -->
+      <AdditionalIncludeDirectories>$(SqliteSrcDir);$(SqliteSrcDir)lang;$(SqliteSrcDir)sqlite;$(SalamanderSharedDir);$(SalamanderSdkDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32;_WIN64;_WINDOWS;_USRDLL;WINVER=0x0601;_WIN32_WINNT=0x0601;_CRT_SECURE_NO_WARNINGS;UNICODE_NOT_USED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <WarningLevel>Level3</WarningLevel>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <AdditionalOptions>/utf-8 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4996;4244;4267;4018;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <ModuleDefinitionFile>$(SqliteSrcDir)sqlite.def</ModuleDefinitionFile>
+      <AdditionalDependencies>shlwapi.lib;comctl32.lib;comdlg32.lib;ole32.lib;shell32.lib;gdi32.lib;user32.lib;advapi32.lib;msimg32.lib;uxtheme.lib;dwmapi.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>true</RandomizedBaseAddress>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(SqliteSrcDir);$(SqliteSrcDir)lang;$(SalamanderSharedDir);$(SalamanderSdkDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WINVER=0x0601;_WIN64;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <Culture>0x0409</Culture>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+    <ResourceCompile>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\auxtools.cpp" />
-    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\dbg.cpp" />
-    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\mhandles.cpp" />
-    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\plugindarkmode.cpp" />
-    <ClCompile Include="..\..\..\salamander-plugins\salamand\plugins\shared\winliblt.cpp" />
+    <ClCompile Include="..\blob_dialog.cpp" />
     <ClCompile Include="..\dialogs.cpp" />
     <ClCompile Include="..\menu.cpp" />
-    <ClCompile Include="..\precomp.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\sqlite.cpp" />
     <ClCompile Include="..\sqlite_engine.cpp" />
     <ClCompile Include="..\sqlitedarkmode.cpp" />
-    <ClCompile Include="..\sqlite\sqlite3.c">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="..\viewer.cpp" />
+    <ClCompile Include="$(SalamanderSharedDir)auxtools.cpp" />
+    <ClCompile Include="$(SalamanderSharedDir)dbg.cpp" />
+    <ClCompile Include="$(SalamanderSharedDir)mhandles.cpp" />
+    <ClCompile Include="$(SalamanderSharedDir)plugindarkmode.cpp" />
+    <ClCompile Include="$(SalamanderSharedDir)winliblt.cpp" />
+    <!-- SQLite amalgamation: plain C, no PCH, own feature defines -->
+    <ClCompile Include="..\sqlite\sqlite3.c">
+      <CompileAs>CompileAsC</CompileAs>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <PreprocessorDefinitions>SQLITE_THREADSAFE=1;SQLITE_ENABLE_FTS5;SQLITE_ENABLE_RTREE;SQLITE_ENABLE_JSON1;SQLITE_ENABLE_COLUMN_METADATA;SQLITE_OMIT_LOAD_EXTENSION;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\blob_dialog.h" />
     <ClInclude Include="..\dialogs.h" />
     <ClInclude Include="..\precomp.h" />
     <ClInclude Include="..\sqlite.h" />
@@ -80,6 +138,4 @@
     <None Include="..\sqlite.rc2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
 </Project>
