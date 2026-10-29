@@ -52,7 +52,7 @@
 #define ENABLE_PROPERTYDIALOG
 #include "winliblt.h"
 #include "auxtools.h"
-#include "plugindarkmode.h"
+#include "darkmode.h"
 
 #include "sqlite.rh"
 #include "sqlite.rh2"

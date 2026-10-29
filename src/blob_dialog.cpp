@@ -76,7 +76,7 @@ static LRESULT CALLBACK ImageCanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
         HBITMAP oldBmp = (HBITMAP)SelectObject(memDC, memBmp);
 
         // Background
-        COLORREF bgCol = SqliteDarkMode::IsDarkMode() ? RGB(26, 26, 26) : RGB(240, 240, 240);
+        COLORREF bgCol = SqliteDarkMode::IsDarkMode() ? DarkModeGetColors().background : GetSysColor(COLOR_BTNFACE);
         HBRUSH hBrBg = CreateSolidBrush(bgCol);
         FillRect(memDC, &rc, hBrBg);
         DeleteObject(hBrBg);
@@ -100,7 +100,7 @@ static LRESULT CALLBACK ImageCanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
 
             // Draw image border / shadow
             RECT rcImg = { drawX - 1, drawY - 1, drawX + drawW + 1, drawY + drawH + 1 };
-            HBRUSH hBrBorder = CreateSolidBrush(SqliteDarkMode::IsDarkMode() ? RGB(60, 60, 60) : RGB(180, 180, 180));
+            HBRUSH hBrBorder = CreateSolidBrush(SqliteDarkMode::GetPalette().textNull);
             FrameRect(memDC, &rcImg, hBrBorder);
             DeleteObject(hBrBorder);
 
@@ -110,7 +110,7 @@ static LRESULT CALLBACK ImageCanvasProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPA
         {
             // Placeholder text
             SetBkMode(memDC, TRANSPARENT);
-            SetTextColor(memDC, SqliteDarkMode::IsDarkMode() ? RGB(140, 140, 140) : RGB(100, 100, 100));
+            SetTextColor(memDC, SqliteDarkMode::GetPalette().textNull);
             SelectObject(memDC, state->hFontNormal);
             const char* msg = "No image data or unsupported image format.";
             DrawTextA(memDC, msg, -1, &rc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
@@ -251,7 +251,7 @@ static void OnSaveBlobToFile(BlobInspectorState* state)
 
     if (!pData || dataSize == 0)
     {
-        MessageBoxA(state->hwndMain, "No data to save.", "Save BLOB", MB_OK | MB_ICONINFORMATION);
+        SalamanderGeneral->SalMessageBox(state->hwndMain, "No data to save.", "Save BLOB", MB_OK | MB_ICONINFORMATION);
         return;
     }
 
@@ -324,13 +324,13 @@ static void OnSaveBlobToFile(BlobInspectorState* state)
 
             char msg[512];
             snprintf(msg, sizeof(msg), "Saved %lu bytes successfully to:\n%s", bytesWritten, szFile);
-            MessageBoxA(state->hwndMain, msg, "Save BLOB", MB_OK | MB_ICONINFORMATION);
+            SalamanderGeneral->SalMessageBox(state->hwndMain, msg, "Save BLOB", MB_OK | MB_ICONINFORMATION);
         }
         else
         {
             char msg[512];
             snprintf(msg, sizeof(msg), "Failed to create file: %s (Error %lu)", szFile, GetLastError());
-            MessageBoxA(state->hwndMain, msg, "Save BLOB Error", MB_OK | MB_ICONERROR);
+            SalamanderGeneral->SalMessageBox(state->hwndMain, msg, "Save BLOB Error", MB_OK | MB_ICONERROR);
         }
     }
 }
@@ -483,9 +483,8 @@ static LRESULT CALLBACK BlobInspectorWndProc(HWND hwnd, UINT uMsg, WPARAM wParam
             0, 0, 90, 26, hwnd, (HMENU)IDCANCEL, DLLInstance, NULL);
         SendMessage(state->hwndBtnClose, WM_SETFONT, (WPARAM)state->hFontNormal, TRUE);
 
-        // Dark mode
-        SqliteDarkMode::ApplyWindowTheme(hwnd);
-        SqliteDarkMode::ApplyEditTheme(state->hwndEditView);
+        // Dark mode (darkmodelib via winliblt): themes the window and all child controls
+        WinLibApplyDarkMode(hwnd);
 
         // Initial mode
         if (state->pImageBitmap != nullptr)
@@ -497,6 +496,36 @@ static LRESULT CALLBACK BlobInspectorWndProc(HWND hwnd, UINT uMsg, WPARAM wParam
 
         UpdateBlobViewMode(state);
         return 0;
+    }
+
+    case WM_THEMECHANGED:
+    case WM_SETTINGCHANGE:
+        WinLibApplyDarkMode(hwnd);
+        RedrawWindow(hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_FRAME | RDW_ERASE);
+        break;
+
+    case WM_ERASEBKGND:
+        if (SqliteDarkMode::IsDarkMode())
+        {
+            RECT rcClient;
+            GetClientRect(hwnd, &rcClient);
+            HBRUSH hBr = CreateSolidBrush(DarkModeGetColors().background);
+            FillRect((HDC)wParam, &rcClient, hBr);
+            DeleteObject(hBr);
+            return 1;
+        }
+        break;
+
+    case WM_CTLCOLORDLG:
+    case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLOREDIT:
+    case WM_CTLCOLORLISTBOX:
+    case WM_CTLCOLORBTN:
+    {
+        LRESULT result = 0;
+        if (DarkModeHandleCtlColor(uMsg, wParam, lParam, result))
+            return result;
+        break;
     }
 
     case WM_SIZE:

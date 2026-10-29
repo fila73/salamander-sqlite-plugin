@@ -427,15 +427,11 @@ bool CViewerWindow::CreateViewerControls()
         m_menuBar = SalamanderGUI->CreateMenuBar(m_mainMenu, HWindow);
     }
 
-    // Apply dark mode
-    SqliteDarkMode::ApplyWindowTheme(HWindow);
-    SqliteDarkMode::ApplyListViewTheme(m_hListViewData);
-    SqliteDarkMode::ApplyListViewTheme(m_hListViewSchema);
-    SqliteDarkMode::ApplyListViewTheme(m_hListViewSql);
-    SqliteDarkMode::ApplyEditTheme(m_hEditSchemaDdl);
-    SqliteDarkMode::ApplyEditTheme(m_hEditSqlQuery);
-    SqliteDarkMode::ApplyEditTheme(m_hEditFilter);
-    SqliteDarkMode::ApplyStatusBarTheme(m_hStatusBar);
+    // Dark mode: theme the window and all controls created above (darkmodelib via winliblt)
+    WinLibApplyDarkMode(HWindow);
+    SqliteDarkMode::ApplyListViewColors(m_hListViewData);
+    SqliteDarkMode::ApplyListViewColors(m_hListViewSchema);
+    SqliteDarkMode::ApplyListViewColors(m_hListViewSql);
 
     ViewerWindowQueue.Add(new CWindowQueueItem(HWindow));
 
@@ -1078,6 +1074,30 @@ LRESULT CViewerWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_USER_VIEWERCFGCHNG:
         InvalidateRect(HWindow, NULL, TRUE);
         return 0;
+
+    case WM_THEMECHANGED:
+    case WM_SETTINGCHANGE:
+    {
+        LRESULT r = CWindow::WindowProc(uMsg, wParam, lParam);
+        WinLibApplyDarkMode(HWindow);
+        SqliteDarkMode::ApplyListViewColors(m_hListViewData);
+        SqliteDarkMode::ApplyListViewColors(m_hListViewSchema);
+        SqliteDarkMode::ApplyListViewColors(m_hListViewSql);
+        RedrawWindow(HWindow, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_FRAME);
+        return r;
+    }
+
+    case WM_CTLCOLORDLG:
+    case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLOREDIT:
+    case WM_CTLCOLORLISTBOX:
+    case WM_CTLCOLORBTN:
+    {
+        LRESULT result = 0;
+        if (DarkModeHandleCtlColor(uMsg, wParam, lParam, result))
+            return result;
+        break;
+    }
 
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:

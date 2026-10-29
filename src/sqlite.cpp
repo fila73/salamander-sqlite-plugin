@@ -47,10 +47,6 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
         initCtrls.dwICC = ICC_BAR_CLASSES | ICC_LISTVIEW_CLASSES | ICC_STANDARD_CLASSES;
         InitCommonControlsEx(&initCtrls);
     }
-    else if (fdwReason == DLL_PROCESS_DETACH)
-    {
-        SqliteDarkMode::ReleaseTheme();
-    }
     return TRUE;
 }
 
@@ -94,18 +90,12 @@ CPluginInterfaceAbstract* WINAPI SalamanderPluginEntry(CSalamanderPluginEntryAbs
     }
 
     SalamanderGeneral = salamander->GetSalamanderGeneral();
+    InitializeWinLibDarkMode(SalamanderGeneral);
     SalamanderGeneral->GetLowerAndUpperCase(&LowerCase, &UpperCase);
     SalamanderGUI = salamander->GetSalamanderGUI();
 
     if (!InitializeWinLib(PluginNameEN, DLLInstance))
         return NULL;
-
-    BOOL useDark = FALSE;
-    if (SalamanderGeneral->GetConfigParameter(SALCFG_USEWINDOWSDARKMODE, &useDark, sizeof(useDark), NULL))
-    {
-        PluginDarkMode_SetHostPolicyAvailable(TRUE, useDark);
-    }
-    SqliteDarkMode::InitTheme();
 
     ViewerAccels = LoadAccelerators(DLLInstance, MAKEINTRESOURCE(IDA_ACCELERATORS));
 
@@ -218,7 +208,6 @@ BOOL WINAPI CPluginInterface::Release(HWND parent, BOOL force)
                 ViewerAccels = NULL;
             }
 
-            SqliteDarkMode::ReleaseTheme();
             ReleaseWinLib(DLLInstance);
         }
     }
@@ -229,6 +218,15 @@ BOOL WINAPI CPluginInterface::Release(HWND parent, BOOL force)
 static const char* CONFIG_VERSION = "ConfigVersion";
 static const DWORD CURRENT_CONFIG_VERSION = 2;
 DWORD ConfigVersion = 0;
+
+void WINAPI CPluginInterface::Event(int event, DWORD param)
+{
+    if (event == PLUGINEVENT_COLORSCHANGED || event == PLUGINEVENT_CONFIGURATIONCHANGED ||
+        event == PLUGINEVENT_SETTINGCHANGE)
+    {
+        RefreshWinLibDarkModeFromHost();
+    }
+}
 
 void WINAPI CPluginInterface::LoadConfiguration(HWND parent, HKEY regKey, CSalamanderRegistryAbstract* registry)
 {
