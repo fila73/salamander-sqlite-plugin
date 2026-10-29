@@ -373,7 +373,7 @@ bool CViewerWindow::CreateViewerControls()
     // Create SQL Query controls
     m_hEditSqlQuery = CreateWindowEx(
         WS_EX_CLIENTEDGE, "EDIT", "SELECT * FROM sqlite_master;",
-        WS_CHILD | WS_TABSTOP | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN,
+        WS_CHILD | WS_TABSTOP | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN, // word-wrap, no h-scrollbar
         0, 0, 100, 80, HWindow, (HMENU)IDC_EDIT_SQL_QUERY, DLLInstance, NULL);
     SendMessage(m_hEditSqlQuery, WM_SETFONT, (WPARAM)m_hFontMono, TRUE);
 
