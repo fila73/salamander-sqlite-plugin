@@ -186,10 +186,67 @@ int main()
 
     engine.Close();
 
+    // Test 11: hostile schema - views calling unsafe/unknown functions and a view with a very deep
+    // expression must not crash. The unsafe-function DB must open (views just count as 0 rows);
+    // the deep-expression DB may be rejected as a malformed schema, but only with an error.
+    std::cout << "[Test 11] Opening DBs with hostile views (unsafe function, deep expression)... ";
+    {
+        const char* hostileDb = "test_hostile.db";
+        if (fs::exists(hostileDb)) fs::remove(hostileDb);
+        sqlite3* h = nullptr;
+        assert(sqlite3_open(hostileDb, &h) == SQLITE_OK);
+        assert(sqlite3_exec(h, "CREATE TABLE t(a); INSERT INTO t VALUES(1);"
+                               "CREATE VIEW v_unsafe AS SELECT load_extension('x.dll') AS a FROM t;"
+                               "CREATE VIEW v_fn AS SELECT evil_app_func(a) AS a FROM t;",
+                            nullptr, nullptr, nullptr) == SQLITE_OK);
+        sqlite3_close(h);
+
+        SqliteEngine::CSqliteEngine hostile;
+        std::string herr;
+        assert(hostile.Open(hostileDb, herr, true) == true);
+        assert(hostile.GetTables().size() == 3);
+        for (const auto& t : hostile.GetTables())
+            if (t.isView)
+                assert(t.rowCount == 0); // counting failed gracefully
+        auto q = hostile.ExecuteQuery("SELECT * FROM v_fn;");
+        assert(q.success == false);
+        q = hostile.ExecuteQuery("SELECT load_extension('x.dll');");
+        assert(q.success == false);
+        hostile.Close();
+        fs::remove(hostileDb);
+
+        const char* deepDb = "test_deep.db";
+        if (fs::exists(deepDb)) fs::remove(deepDb);
+        assert(sqlite3_open(deepDb, &h) == SQLITE_OK);
+        std::string deep = "CREATE TABLE t(a); CREATE VIEW v_deep AS SELECT ";
+        const int depth = 300; // above the engine limit (200), below the compile-time max (1000)
+        for (int i = 0; i < depth; i++) deep += "(";
+        deep += "a";
+        for (int i = 0; i < depth; i++) deep += "+1)";
+        deep += " AS a FROM t;";
+        assert(sqlite3_exec(h, deep.c_str(), nullptr, nullptr, nullptr) == SQLITE_OK);
+        sqlite3_close(h);
+
+        SqliteEngine::CSqliteEngine deepEng;
+        std::string derr;
+        if (deepEng.Open(deepDb, derr, true))
+        {
+            auto dq = deepEng.ExecuteQuery("SELECT * FROM v_deep;");
+            assert(dq.success == false);
+        }
+        else
+        {
+            assert(!derr.empty());
+        }
+        deepEng.Close();
+        fs::remove(deepDb);
+    }
+    std::cout << "PASSED" << std::endl;
+
     // Clean up test files
     if (fs::exists(testDbPath)) fs::remove(testDbPath);
     if (fs::exists(exportPath)) fs::remove(exportPath);
 
-    std::cout << "\n>>> ALL 10 TESTS PASSED SUCCESSFULLY! <<<\n" << std::endl;
+    std::cout << "\n>>> ALL 11 TESTS PASSED SUCCESSFULLY! <<<\n" << std::endl;
     return 0;
 }

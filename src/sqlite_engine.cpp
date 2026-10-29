@@ -144,6 +144,23 @@ bool CSqliteEngine::Open(const char* filePath, std::string& outError, bool direc
         return false;
     }
 
+    // Hardening: the file is untrusted, so views/triggers/CHECK/generated columns must not be
+    // able to call unsafe functions, and the engine must reject pathological schemas/queries.
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_DEFENSIVE, 1, (int*)NULL);
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_TRUSTED_SCHEMA, 0, (int*)NULL);
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_ENABLE_LOAD_EXTENSION, 0, (int*)NULL);
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_DQS_DML, 0, (int*)NULL);
+    sqlite3_db_config(m_db, SQLITE_DBCONFIG_DQS_DDL, 0, (int*)NULL);
+    sqlite3_limit(m_db, SQLITE_LIMIT_SQL_LENGTH, 4 * 1000 * 1000);
+    sqlite3_limit(m_db, SQLITE_LIMIT_EXPR_DEPTH, 200);
+    sqlite3_limit(m_db, SQLITE_LIMIT_COMPOUND_SELECT, 100);
+    sqlite3_limit(m_db, SQLITE_LIMIT_FUNCTION_ARG, 32);
+    sqlite3_limit(m_db, SQLITE_LIMIT_ATTACHED, 0);
+    sqlite3_limit(m_db, SQLITE_LIMIT_LIKE_PATTERN_LENGTH, 10000);
+    sqlite3_limit(m_db, SQLITE_LIMIT_VARIABLE_NUMBER, 250);
+    sqlite3_limit(m_db, SQLITE_LIMIT_TRIGGER_DEPTH, 10);
+    sqlite3_exec(m_db, "PRAGMA trusted_schema = OFF;", NULL, NULL, NULL);
+
     // Set read-only safety pragma
     sqlite3_exec(m_db, "PRAGMA query_only = ON;", NULL, NULL, NULL);
 
