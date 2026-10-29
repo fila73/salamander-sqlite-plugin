@@ -373,7 +373,7 @@ bool CViewerWindow::CreateViewerControls()
     // Create SQL Query controls
     m_hEditSqlQuery = CreateWindowEx(
         WS_EX_CLIENTEDGE, "EDIT", "SELECT * FROM sqlite_master;",
-        WS_CHILD | WS_TABSTOP | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN,
+        WS_CHILD | WS_TABSTOP | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN, // word-wrap, no h-scrollbar
         0, 0, 100, 80, HWindow, (HMENU)IDC_EDIT_SQL_QUERY, DLLInstance, NULL);
     SendMessage(m_hEditSqlQuery, WM_SETFONT, (WPARAM)m_hFontMono, TRUE);
 
@@ -427,15 +427,12 @@ bool CViewerWindow::CreateViewerControls()
         m_menuBar = SalamanderGUI->CreateMenuBar(m_mainMenu, HWindow);
     }
 
-    // Apply dark mode
-    SqliteDarkMode::ApplyWindowTheme(HWindow);
-    SqliteDarkMode::ApplyListViewTheme(m_hListViewData);
-    SqliteDarkMode::ApplyListViewTheme(m_hListViewSchema);
-    SqliteDarkMode::ApplyListViewTheme(m_hListViewSql);
-    SqliteDarkMode::ApplyEditTheme(m_hEditSchemaDdl);
-    SqliteDarkMode::ApplyEditTheme(m_hEditSqlQuery);
-    SqliteDarkMode::ApplyEditTheme(m_hEditFilter);
-    SqliteDarkMode::ApplyStatusBarTheme(m_hStatusBar);
+    // Dark mode: theme the window and all controls created above (darkmodelib via winliblt)
+    WinLibApplyDarkMode(HWindow);
+    SqliteDarkMode::ApplyComboThemes(m_hComboTables, m_hComboMode, m_hComboPageSize);
+    SqliteDarkMode::ApplyListViewColors(m_hListViewData);
+    SqliteDarkMode::ApplyListViewColors(m_hListViewSchema);
+    SqliteDarkMode::ApplyListViewColors(m_hListViewSql);
 
     ViewerWindowQueue.Add(new CWindowQueueItem(HWindow));
 
@@ -1078,6 +1075,44 @@ LRESULT CViewerWindow::WindowProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
     case WM_USER_VIEWERCFGCHNG:
         InvalidateRect(HWindow, NULL, TRUE);
         return 0;
+
+    case WM_THEMECHANGED:
+    case WM_SETTINGCHANGE:
+    {
+        LRESULT r = CWindow::WindowProc(uMsg, wParam, lParam);
+        WinLibApplyDarkMode(HWindow);
+        SqliteDarkMode::ApplyComboThemes(m_hComboTables, m_hComboMode, m_hComboPageSize);
+        SqliteDarkMode::ApplyListViewColors(m_hListViewData);
+        SqliteDarkMode::ApplyListViewColors(m_hListViewSchema);
+        SqliteDarkMode::ApplyListViewColors(m_hListViewSql);
+        RedrawWindow(HWindow, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_FRAME);
+        return r;
+    }
+
+    case WM_ERASEBKGND:
+        // Dark mode: paint the gaps between child controls (toolbar strip, button row, borders)
+        if (SqliteDarkMode::IsDarkMode())
+        {
+            RECT rcClient;
+            GetClientRect(HWindow, &rcClient);
+            HBRUSH hBr = CreateSolidBrush(DarkModeGetColors().background);
+            FillRect((HDC)wParam, &rcClient, hBr);
+            DeleteObject(hBr);
+            return 1;
+        }
+        break;
+
+    case WM_CTLCOLORDLG:
+    case WM_CTLCOLORSTATIC:
+    case WM_CTLCOLOREDIT:
+    case WM_CTLCOLORLISTBOX:
+    case WM_CTLCOLORBTN:
+    {
+        LRESULT result = 0;
+        if (DarkModeHandleCtlColor(uMsg, wParam, lParam, result))
+            return result;
+        break;
+    }
 
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:

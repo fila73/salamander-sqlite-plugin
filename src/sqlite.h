@@ -73,7 +73,7 @@ public:
     virtual CPluginInterfaceForFSAbstract* WINAPI GetInterfaceForFS() override { return NULL; }
     virtual CPluginInterfaceForThumbLoaderAbstract* WINAPI GetInterfaceForThumbLoader() override { return NULL; }
 
-    virtual void WINAPI Event(int event, DWORD param) override {}
+    virtual void WINAPI Event(int event, DWORD param) override;
     virtual void WINAPI ClearHistory(HWND parent) override {}
     virtual void WINAPI AcceptChangeOnPathNotification(const char* path, BOOL includingSubdirs) override {}
     virtual void WINAPI PasswordManagerEvent(HWND parent, int event) override {}
